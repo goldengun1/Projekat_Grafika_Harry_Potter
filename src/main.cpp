@@ -16,6 +16,9 @@
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
 
+#include <rg/Shader.h>
+#include <rg/Camera.h>
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
