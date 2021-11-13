@@ -134,35 +134,35 @@ int main() {
 
     unsigned VBO, VAO;
     glGenVertexArrays(1,&VAO);
-    glGenBuffers(1,&VBO);
 
     glBindVertexArray(VAO);
 
+    glGenBuffers(1,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)3);
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
 
     //textures
-    unsigned int tex;
-    glGenTextures(1,&tex);
+    unsigned int tex0;
+    glGenTextures(1,&tex0);
 
     int width,height,nrComponents;
-    unsigned char* data = stbi_load("resources/textures/tex1.png",&width,&height,&nrComponents,0);
+    unsigned char* data = stbi_load("/home/mihailo/CLionProjects/Projekat_Grafika_Harry_Potter/resources/textures/tex1.png",&width,&height,&nrComponents,0);
     if(data){
         GLenum format;
         if(nrComponents == 1)
             format = GL_RED;
         else if(nrComponents == 3)
             format = GL_RGB;
-        else if(nrComponents = 4)
+        else if(nrComponents == 4)
             format = GL_RGBA;
 
-        glBindTexture(GL_TEXTURE_2D,tex);
+        glBindTexture(GL_TEXTURE_2D,tex0);
         glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -180,8 +180,10 @@ int main() {
     }
 
     shader.use();
-    shader.setInt("tex0",0);
+    shader.setInt("t0",0);
 
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArray(0);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window)) {
@@ -200,7 +202,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,tex);
+        glBindTexture(GL_TEXTURE_2D,tex0);
 
         // don't forget to enable shader before setting uniforms
         glm::mat4 model = glm::mat4 (1.0f);
