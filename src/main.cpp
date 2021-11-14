@@ -88,49 +88,86 @@ int main() {
 
     Shader shader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
 
-    float vertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    float res_stone[] = {
+                //coords         //TexCoords
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,         //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f,0.0f,            //V1(green)
+            1.0f,-1.0f,1.0f,     1.0f,0.0f,          //V2(blue)
+                                                    
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,          //V0(red)
+            1.0f,-1.0f,1.0f,     0.0f,0.0f,          //V2(blue)
+            1.0f,-1.0f,-1.0f,    1.0f,0.0f,           //V3(green)
+                                                    
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,         //V0(red)
+            1.0f,-1.0f,-1.0f,    0.0f,0.0f,           //V3(green)
+            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,             //V4(blue)
+                                                    
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,          //V0(red)
+            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,             //V4(blue)
+            -1.0f,-1.0f,1.0f,    1.0f,0.0f,            //V1
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            //lower pyramid
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,         //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f,0.0f,            //V1(green)
+            1.0f,-1.0f,1.0f,     1.0f,0.0f,          //V2(blue)
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,          //V0(red)
+            1.0f,-1.0f,1.0f,     0.0f,0.0f,          //V2(blue)
+            1.0f,-1.0f,-1.0f,    1.0f,0.0f,           //V3(green)
 
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,         //V0(red)
+            1.0f,-1.0f,-1.0f,    0.0f,0.0f,           //V3(green)
+            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,             //V4(blue)
 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,          //V0(red)
+            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,             //V4(blue)
+            -1.0f,-1.0f,1.0f,    1.0f,0.0f            //V1
     };
+
+    //float cube[]{
+    //
+    //    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    //    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    //    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    //
+    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    //    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    //    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    //    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //
+    //    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //
+    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //
+    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    //    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    //    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //
+    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    //};
 
     unsigned VBO, VAO;
     glGenVertexArrays(1,&VAO);
@@ -139,7 +176,7 @@ int main() {
 
     glGenBuffers(1,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(res_stone),res_stone,GL_STATIC_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
@@ -206,6 +243,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         glm::mat4 model = glm::mat4 (1.0f);
+        model = rotate(model,(float)glfwGetTime(),glm::vec3(0.0f,1.0f,0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
