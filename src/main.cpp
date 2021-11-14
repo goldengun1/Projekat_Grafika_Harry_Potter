@@ -45,6 +45,17 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+struct PointLight {
+    glm::vec3 position;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
 
 int main() {
     // glfw: initialize and configure
@@ -88,6 +99,19 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     Shader shader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
+    Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
+
+    Model ourModel(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
+    ourModel.SetShaderTextureNamePrefix("material.");
+
+    PointLight pointLight;
+    pointLight.ambient = glm::vec3(1.0f);
+    pointLight.diffuse = glm::vec3(1.0f);
+    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
+    pointLight.constant = 1.0f;
+    pointLight.linear = 0.09f;
+    pointLight.quadratic = 0.032f;
+    pointLight.position = glm::vec3(4.0, 4.0, 4.0);
 
     float res_stone[] = {
                 //coords         //TexCoords       //Normals
@@ -246,7 +270,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         glm::mat4 model = glm::mat4 (1.0f);
-        model = rotate(model,(float)glfwGetTime(),glm::vec3(0.0f,1.0f,0.0f));
+        //model = rotate(model,(float)glfwGetTime(),glm::vec3(0.0f,1.0f,0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
@@ -257,6 +281,23 @@ int main() {
 
         glBindVertexArray(res_stoneVAO);
         glDrawArrays(GL_TRIANGLES,0,36);
+
+        modelShader.use();
+        pointLight.position = glm::vec3(0.0f,sin(glfwGetTime()),cos(glfwGetTime()));
+        modelShader.setVec3("pointLight.position", pointLight.position);
+        modelShader.setVec3("pointLight.ambient", pointLight.ambient);
+        modelShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        modelShader.setVec3("pointLight.specular", pointLight.specular);
+        modelShader.setFloat("pointLight.constant", pointLight.constant);
+        modelShader.setFloat("pointLight.linear", pointLight.linear);
+        modelShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        modelShader.setVec3("viewPosition", camera.Position);
+        modelShader.setFloat("material.shininess", 32.0f);
+
+        modelShader.setMat4("model",model);
+        modelShader.setMat4("view",view);
+        modelShader.setMat4("projection",projection);
+        ourModel.Draw(modelShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
