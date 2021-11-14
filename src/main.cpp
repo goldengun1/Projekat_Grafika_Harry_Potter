@@ -45,6 +45,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+
 int main() {
     // glfw: initialize and configure
     // ------------------------------
@@ -169,10 +170,10 @@ int main() {
     //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     //};
 
-    unsigned VBO, VAO;
-    glGenVertexArrays(1,&VAO);
+    unsigned VBO, res_stoneVAO;
+    glGenVertexArrays(1,&res_stoneVAO);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(res_stoneVAO);
 
     glGenBuffers(1,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
@@ -254,14 +255,14 @@ int main() {
         shader.setMat4("View",view);
         shader.setMat4("Projection",projection);
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(res_stoneVAO);
         glDrawArrays(GL_TRIANGLES,0,36);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1,&VAO);
+    glDeleteVertexArrays(1,&res_stoneVAO);
     glDeleteBuffers(1,&VBO);
     shader.deleteProgram();
     glfwTerminate();
