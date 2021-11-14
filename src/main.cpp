@@ -59,7 +59,7 @@ int main() {
 
     // glfw window creation
     // --------------------
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Harry_Potter_and_the_OpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -89,39 +89,39 @@ int main() {
     Shader shader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
 
     float res_stone[] = {
-                //coords         //TexCoords
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,         //V0(red)
-            -1.0f,-1.0f,1.0f,    0.0f,0.0f,            //V1(green)
-            1.0f,-1.0f,1.0f,     1.0f,0.0f,          //V2(blue)
-                                                    
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,          //V0(red)
-            1.0f,-1.0f,1.0f,     0.0f,0.0f,          //V2(blue)
-            1.0f,-1.0f,-1.0f,    1.0f,0.0f,           //V3(green)
-                                                    
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,         //V0(red)
-            1.0f,-1.0f,-1.0f,    0.0f,0.0f,           //V3(green)
-            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,             //V4(blue)
-                                                    
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,          //V0(red)
-            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,             //V4(blue)
-            -1.0f,-1.0f,1.0f,    1.0f,0.0f,            //V1
+                //coords         //TexCoords       //Normals
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,                     //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f,0.0f,                        //V1(green)
+            1.0f,-1.0f,1.0f,     1.0f,0.0f,                      //V2(blue)
+
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,                      //V0(red)
+            1.0f,-1.0f,1.0f,     0.0f,0.0f,                      //V2(blue)
+            1.0f,-1.0f,-1.0f,    1.0f,0.0f,                       //V3(green)
+
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,                     //V0(red)
+            1.0f,-1.0f,-1.0f,    0.0f,0.0f,                       //V3(green)
+            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,                         //V4(blue)
+
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,                      //V0(red)
+            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,                         //V4(blue)
+            -1.0f,-1.0f,1.0f,    1.0f,0.0f,                        //V1
 
             //lower pyramid
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,         //V0(red)
-            -1.0f,-1.0f,1.0f,    0.0f,0.0f,            //V1(green)
-            1.0f,-1.0f,1.0f,     1.0f,0.0f,          //V2(blue)
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f,0.0f,                        //V1(green)
+            1.0f,-1.0f,1.0f,     1.0f,0.0f,                      //V2(blue)
 
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,          //V0(red)
-            1.0f,-1.0f,1.0f,     0.0f,0.0f,          //V2(blue)
-            1.0f,-1.0f,-1.0f,    1.0f,0.0f,           //V3(green)
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
+            1.0f,-1.0f,1.0f,     0.0f,0.0f,                      //V2(blue)
+            1.0f,-1.0f,-1.0f,    1.0f,0.0f,                       //V3(green)
 
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,         //V0(red)
-            1.0f,-1.0f,-1.0f,    0.0f,0.0f,           //V3(green)
-            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,             //V4(blue)
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
+            1.0f,-1.0f,-1.0f,    0.0f,0.0f,                       //V3(green)
+            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,                         //V4(blue)
 
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,          //V0(red)
-            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,             //V4(blue)
-            -1.0f,-1.0f,1.0f,    1.0f,0.0f            //V1
+            0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
+            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,                         //V4(blue)
+            -1.0f,-1.0f,1.0f,    1.0f,0.0f                        //V1
     };
 
     //float cube[]{
@@ -185,11 +185,13 @@ int main() {
     glEnableVertexAttribArray(1);
 
     //textures
+    //Ako se koristi ovako napravljen resurection_stone onda moraju da se napisu i normale vertex-a zbog osvetljenja,
+    //dok kod ucitavanja modela ne mora.(VIDETI STA JE BOLJE)
     unsigned int tex0;
     glGenTextures(1,&tex0);
 
     int width,height,nrComponents;
-    unsigned char* data = stbi_load("/home/mihailo/CLionProjects/Projekat_Grafika_Harry_Potter/resources/textures/tex1.png",&width,&height,&nrComponents,0);
+    unsigned char* data = stbi_load("/home/mihailo/CLionProjects/Projekat_Grafika_Harry_Potter/resources/textures/texture_diffuse.png",&width,&height,&nrComponents,0);
     if(data){
         GLenum format;
         if(nrComponents == 1)
@@ -281,9 +283,13 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
-    //TODO Set higher speed movement when holding SHIFT key
+    if(glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+        camera.MovementSpeed = camera.DefaultSpeed * 5.0f;
+    }
+    if(glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
+        camera.MovementSpeed = camera.DefaultSpeed;
+    }
 
-    //TODO Create FPS camera behaviour
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -319,5 +325,15 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        camera.CreativeMode = !camera.CreativeMode;
+
+        if(!camera.CreativeMode)
+            std::cout<<"!!!CREATIVE MODE DISABLED!!!\n";
+        else
+            std::cout<<"!!!CREATIVE MODE ACTIVATED!!!\n";
+
+    }
 
 }
