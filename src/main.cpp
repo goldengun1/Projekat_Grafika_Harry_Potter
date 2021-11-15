@@ -101,12 +101,12 @@ int main() {
     Shader shader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
 
-    Model ourModel(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
+    Model ourModel(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
     ourModel.SetShaderTextureNamePrefix("material.");
 
     PointLight pointLight;
-    pointLight.ambient = glm::vec3(1.0f);
-    pointLight.diffuse = glm::vec3(1.0f);
+    pointLight.ambient = glm::vec3(0.2f);
+    pointLight.diffuse = glm::vec3(0.9f);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
@@ -216,7 +216,7 @@ int main() {
     glGenTextures(1,&tex0);
 
     int width,height,nrComponents;
-    unsigned char* data = stbi_load("/home/mihailo/CLionProjects/Projekat_Grafika_Harry_Potter/resources/textures/texture_diffuse.png",&width,&height,&nrComponents,0);
+    unsigned char* data = stbi_load(FileSystem::getPath("resources/textures/texture_diffuse.png").c_str(),&width,&height,&nrComponents,0);
     if(data){
         GLenum format;
         if(nrComponents == 1)
