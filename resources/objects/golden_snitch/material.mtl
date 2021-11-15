@@ -1,0 +1,25 @@
+# Aspose.3D Wavefront OBJ Exporter
+# Copyright 2004-2021 Aspose Pty Ltd.
+# File created: 11/11/2021 14:26:34
+
+newmtl DefaultMaterial
+	Ka 0.2 0.2 0.2
+	Kd 0.8 0.8 0.8
+	d 1
+	illum 2
+	Ks 0.2 0.2 0.2
+	Ns 20
+	map_Ka DefaultMaterial_albedo.jpeg
+	map_Kd DefaultMaterial_albedo.jpeg
+	map_Ks DefaultMaterial_metallic.jpeg
+	map_bump DefaultMaterial_normal.png
+newmtl gold
+	Ka 0.2 0.2 0.2
+	Kd 0.8 0.8 0.8
+	d 1
+	illum 2
+	Ks 0.2 0.2 0.2
+	Ns 20
+	map_Kd gold_albedo.jpeg
+    map_Ks gold_metallic.jpeg
+    map_bump gold_normal.png
