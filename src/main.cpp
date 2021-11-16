@@ -113,40 +113,40 @@ int main() {
     pointLight.quadratic = 0.032f;
     pointLight.position = glm::vec3(4.0, 4.0, 4.0);
 
-    float res_stone[] = {
+    float pyramid[] = {
                 //coords         //TexCoords       //Normals
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,                     //V0(red)
-            -1.0f,-1.0f,1.0f,    0.0f,0.0f,                        //V1(green)
-            1.0f,-1.0f,1.0f,     1.0f,0.0f,                      //V2(blue)
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,     // 0.0f, 2.0f, 2.0f,                //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f,0.0f,     // 0.0f, 2.0f, 2.0f,                   //V1(green)
+            1.0f,-1.0f,1.0f,     1.0f,0.0f,     // 0.0f, 2.0f, 2.0f,                 //V2(blue)
+                                                //
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,     //2.0f, 2.0f, 0.0f,                  //V0(red)
+            1.0f,-1.0f,1.0f,     0.0f,0.0f,     //2.0f, 2.0f, 0.0f,                  //V2(blue)
+            1.0f,-1.0f,-1.0f,    1.0f,0.0f,     //2.0f, 2.0f, 0.0f,                   //V3(green)
+                                                //
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,     //0.0f, 2.0f, -2.0f,                //V0(red)
+            1.0f,-1.0f,-1.0f,    0.0f,0.0f,     //0.0f, 2.0f, -2.0f,                  //V3(green)
+            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,     //0.0f, 2.0f, -2.0f,                    //V4(blue)
+                                                //
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,     //-2.0f, 2.0f, 0.0f,                 //V0(red)
+            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,     //-2.0f, 2.0f, 0.0f,                    //V4(blue)
+            -1.0f,-1.0f,1.0f,    1.0f,0.0f     //-2.0f, 2.0f, 0.0f                    //V1
 
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,                      //V0(red)
-            1.0f,-1.0f,1.0f,     0.0f,0.0f,                      //V2(blue)
-            1.0f,-1.0f,-1.0f,    1.0f,0.0f,                       //V3(green)
-
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,                     //V0(red)
-            1.0f,-1.0f,-1.0f,    0.0f,0.0f,                       //V3(green)
-            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,                         //V4(blue)
-
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,                      //V0(red)
-            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,                         //V4(blue)
-            -1.0f,-1.0f,1.0f,    1.0f,0.0f,                        //V1
-
-            //lower pyramid
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
-            -1.0f,-1.0f,1.0f,    0.0f,0.0f,                        //V1(green)
-            1.0f,-1.0f,1.0f,     1.0f,0.0f,                      //V2(blue)
-
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
-            1.0f,-1.0f,1.0f,     0.0f,0.0f,                      //V2(blue)
-            1.0f,-1.0f,-1.0f,    1.0f,0.0f,                       //V3(green)
-
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
-            1.0f,-1.0f,-1.0f,    0.0f,0.0f,                       //V3(green)
-            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,                         //V4(blue)
-
-            0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
-            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,                         //V4(blue)
-            -1.0f,-1.0f,1.0f,    1.0f,0.0f                        //V1
+            ////lower pyramid
+            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
+            //-1.0f,-1.0f,1.0f,    0.0f,0.0f,                        //V1(green)
+            //1.0f,-1.0f,1.0f,     1.0f,0.0f,                      //V2(blue)
+            //
+            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
+            //1.0f,-1.0f,1.0f,     0.0f,0.0f,                      //V2(blue)
+            //1.0f,-1.0f,-1.0f,    1.0f,0.0f,                       //V3(green)
+            //
+            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
+            //1.0f,-1.0f,-1.0f,    0.0f,0.0f,                       //V3(green)
+            //-1.0f,-1.0f,-1.0f,   1.0f,0.0f,                         //V4(blue)
+            //
+            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
+            //-1.0f,-1.0f,-1.0f,   0.0f,0.0f,                         //V4(blue)
+            //-1.0f,-1.0f,1.0f,    1.0f,0.0f                        //V1
     };
 
     //float cube[]{
@@ -201,7 +201,7 @@ int main() {
 
     glGenBuffers(1,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(res_stone),res_stone,GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(pyramid),pyramid,GL_STATIC_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
@@ -216,7 +216,7 @@ int main() {
     glGenTextures(1,&tex0);
 
     int width,height,nrComponents;
-    unsigned char* data = stbi_load(FileSystem::getPath("resources/textures/texture_diffuse.png").c_str(),&width,&height,&nrComponents,0);
+    unsigned char* data = stbi_load(FileSystem::getPath("resources/textures/gold_diffuse.jpg").c_str(),&width,&height,&nrComponents,0);
     if(data){
         GLenum format;
         if(nrComponents == 1)
@@ -283,7 +283,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES,0,36);
 
         modelShader.use();
-        pointLight.position = glm::vec3(0.0f,sin(glfwGetTime()),cos(glfwGetTime()));
+        pointLight.position = glm::vec3(2*sin(glfwGetTime()),0.0f,2*cos(glfwGetTime()));
         modelShader.setVec3("pointLight.position", pointLight.position);
         modelShader.setVec3("pointLight.ambient", pointLight.ambient);
         modelShader.setVec3("pointLight.diffuse", pointLight.diffuse);
