@@ -115,21 +115,21 @@ int main() {
 
     float pyramid[] = {
                 //coords         //TexCoords       //Normals
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,     // 0.0f, 2.0f, 2.0f,                //V0(red)
-            -1.0f,-1.0f,1.0f,    0.0f,0.0f,     // 0.0f, 2.0f, 2.0f,                   //V1(green)
-            1.0f,-1.0f,1.0f,     1.0f,0.0f,     // 0.0f, 2.0f, 2.0f,                 //V2(blue)
-                                                //
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,     //2.0f, 2.0f, 0.0f,                  //V0(red)
-            1.0f,-1.0f,1.0f,     0.0f,0.0f,     //2.0f, 2.0f, 0.0f,                  //V2(blue)
-            1.0f,-1.0f,-1.0f,    1.0f,0.0f,     //2.0f, 2.0f, 0.0f,                   //V3(green)
-                                                //
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,     //0.0f, 2.0f, -2.0f,                //V0(red)
-            1.0f,-1.0f,-1.0f,    0.0f,0.0f,     //0.0f, 2.0f, -2.0f,                  //V3(green)
-            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,     //0.0f, 2.0f, -2.0f,                    //V4(blue)
-                                                //
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,     //-2.0f, 2.0f, 0.0f,                 //V0(red)
-            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,     //-2.0f, 2.0f, 0.0f,                    //V4(blue)
-            -1.0f,-1.0f,1.0f,    1.0f,0.0f     //-2.0f, 2.0f, 0.0f                    //V1
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,     0.0f, 2.0f, 2.0f,                //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f,0.0f,     0.0f, 2.0f, 2.0f,                   //V1(green)
+            1.0f,-1.0f,1.0f,     1.0f,0.0f,     0.0f, 2.0f, 2.0f,                 //V2(blue)
+
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,    2.0f, 2.0f, 0.0f,                  //V0(red)
+            1.0f,-1.0f,1.0f,     0.0f,0.0f,    2.0f, 2.0f, 0.0f,                  //V2(blue)
+            1.0f,-1.0f,-1.0f,    1.0f,0.0f,    2.0f, 2.0f, 0.0f,                   //V3(green)
+
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,    0.0f, 2.0f, -2.0f,                //V0(red)
+            1.0f,-1.0f,-1.0f,    0.0f,0.0f,    0.0f, 2.0f, -2.0f,                  //V3(green)
+            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,    0.0f, 2.0f, -2.0f,                    //V4(blue)
+
+            0.0f, 0.0f,0.0f,     0.5f,1.0f,    -2.0f, 2.0f, 0.0f,                 //V0(red)
+            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,    -2.0f, 2.0f, 0.0f,                    //V4(blue)
+            -1.0f,-1.0f,1.0f,    1.0f,0.0f,    -2.0f, 2.0f, 0.0f                    //V1
 
             ////lower pyramid
             //0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
@@ -203,11 +203,14 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(pyramid),pyramid,GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5* sizeof(float),(void*)(3* sizeof(float)));
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8* sizeof(float),(void*)(5* sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     //textures
     //Ako se koristi ovako napravljen resurection_stone onda moraju da se napisu i normale vertex-a zbog osvetljenja,
@@ -243,8 +246,39 @@ int main() {
         //glfwTerminate();
     }
 
+    unsigned int tex1;
+    glGenTextures(1,&tex1);
+
+    data = stbi_load(FileSystem::getPath("resources/textures/gold_specular.jpg").c_str(),&width,&height,&nrComponents,0);
+    if(data){
+        GLenum format;
+        if(nrComponents == 1)
+            format = GL_RED;
+        else if(nrComponents == 3)
+            format = GL_RGB;
+        else if(nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D,tex1);
+        glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GLFW_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GLFW_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else{
+        std::cerr<<"FAILED TO LOAD TEXTURE\n";
+        stbi_image_free(data);
+        //glfwTerminate();
+    }
+
     shader.use();
-    shader.setInt("t0",0);
+    shader.setInt("material.texture_diffuse1",0);
+    shader.setInt("material.texture_specular1", 1);
 
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
@@ -267,6 +301,8 @@ int main() {
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,tex0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, tex1);
 
         // don't forget to enable shader before setting uniforms
         glm::mat4 model = glm::mat4 (1.0f);
@@ -274,7 +310,19 @@ int main() {
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
+        pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime()));
+
         shader.use();
+        shader.setVec3("pointLight.position", pointLight.position);
+        shader.setVec3("pointLight.ambient", pointLight.ambient);
+        shader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        shader.setVec3("pointLight.specular", pointLight.specular);
+        shader.setFloat("pointLight.constant", pointLight.constant);
+        shader.setFloat("pointLight.linear", pointLight.linear);
+        shader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        shader.setVec3("viewPosition", camera.Position);
+        shader.setFloat("material.shininess", 16.0f);
+
         shader.setMat4("Model",model);
         shader.setMat4("View",view);
         shader.setMat4("Projection",projection);
@@ -283,7 +331,6 @@ int main() {
         glDrawArrays(GL_TRIANGLES,0,36);
 
         modelShader.use();
-        pointLight.position = glm::vec3(2*sin(glfwGetTime()),0.0f,2*cos(glfwGetTime()));
         modelShader.setVec3("pointLight.position", pointLight.position);
         modelShader.setVec3("pointLight.ambient", pointLight.ambient);
         modelShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -294,6 +341,7 @@ int main() {
         modelShader.setVec3("viewPosition", camera.Position);
         modelShader.setFloat("material.shininess", 32.0f);
 
+        model = glm::translate(model, glm::vec3(0.0f, 0.3f, -0.15f));
         modelShader.setMat4("model",model);
         modelShader.setMat4("view",view);
         modelShader.setMat4("projection",projection);
