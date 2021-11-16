@@ -43,6 +43,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+bool spotLightOn = false;
+
 int main() {
     // glfw: initialize and configure
     // ------------------------------
@@ -219,6 +221,8 @@ int main() {
 
         pyramidShader.setVec3("spotLight.direction", camera.Front);
         pyramidShader.setVec3("spotLight.position", camera.Position);
+
+        pyramidShader.setBool("spotLightOn", spotLightOn);
         pyramidShader.setVec3("viewPosition", camera.Position);
 
         pyramidShader.setFloat("material.shininess", 16.0f);
@@ -235,6 +239,8 @@ int main() {
 
         modelShader.setVec3("spotLight.direction", camera.Front);
         modelShader.setVec3("spotLight.position", camera.Position);
+
+        modelShader.setBool("spotLightOn", spotLightOn);
         modelShader.setVec3("viewPosition", camera.Position);
 
         modelShader.setFloat("material.shininess", 32.0f);
@@ -322,7 +328,15 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             std::cout<<"!!!CREATIVE MODE DISABLED!!!\n";
         else
             std::cout<<"!!!CREATIVE MODE ACTIVATED!!!\n";
+    }
 
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+        spotLightOn = !spotLightOn;
+
+        if(spotLightOn)
+            std::cout<<"!!!SPOTLIGHT ENABLED!!!\n";
+        else
+            std::cout<<"!!!SPOTLIGHT DISABLED!!!\n";
     }
 }
 
