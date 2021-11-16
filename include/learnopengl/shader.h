@@ -9,6 +9,8 @@
 #include <sstream>
 #include <iostream>
 #include <common.h>
+#include <learnopengl/lights.h>
+
 class Shader
 {
 public:
@@ -167,6 +169,31 @@ public:
     {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
+
+    void setLights(DirLight dirLight, PointLight pointLight, SpotLight spotLight){
+        setVec3("dirLight.direction", dirLight.direction);
+        setVec3("dirLight.ambient", dirLight.ambient);
+        setVec3("dirLight.diffuse", dirLight.diffuse);
+        setVec3("dirLight.specular", dirLight.specular);
+
+        setVec3("pointLight.position", pointLight.position);
+        setVec3("pointLight.ambient", pointLight.ambient);
+        setVec3("pointLight.diffuse", pointLight.diffuse);
+        setVec3("pointLight.specular", pointLight.specular);
+        setFloat("pointLight.constant", pointLight.constant);
+        setFloat("pointLight.linear", pointLight.linear);
+        setFloat("pointLight.quadratic", pointLight.quadratic);
+
+        setVec3("spotLight.ambient", spotLight.ambient);
+        setVec3("spotLight.diffuse", spotLight.diffuse);
+        setVec3("spotLight.specular", spotLight.specular);
+        setFloat("spotLight.constant", spotLight.constant);
+        setFloat("spotLight.linear", spotLight.linear);
+        setFloat("spotLight.quadratic", spotLight.quadratic);
+        setFloat("spotLight.cutOff", spotLight.cutOff);
+        setFloat("spotLight.outerCutOff", spotLight.outerCutOff);
+    }
+
     void deleteProgram() {
         glDeleteProgram(ID);
         ID = 0;

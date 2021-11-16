@@ -15,6 +15,7 @@
 #include <learnopengl/shader.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
+#include <learnopengl/lights.h>
 
 //#include <rg/Shader.h>
 //#include <rg/Camera.h>
@@ -22,14 +23,11 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-
 void processInput(GLFWwindow *window);
-
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+unsigned int loadTexture(const char *path);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -44,18 +42,6 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-struct PointLight {
-    glm::vec3 position;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-};
 
 int main() {
     // glfw: initialize and configure
@@ -98,20 +84,19 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader shader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
+    Shader pyramidShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
 
-    Model ourModel(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
-    ourModel.SetShaderTextureNamePrefix("material.");
+    Model snitch(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
+    snitch.SetShaderTextureNamePrefix("material.");
 
     PointLight pointLight;
-    pointLight.ambient = glm::vec3(0.2f);
-    pointLight.diffuse = glm::vec3(0.9f);
-    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
-    pointLight.constant = 1.0f;
-    pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
-    pointLight.position = glm::vec3(4.0, 4.0, 4.0);
+    pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
+    DirLight dirLight;
+    dirLight.setLightComponents(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.2f), glm::vec3(0.5f));
+    SpotLight spotLight;
+    spotLight.setLightComponents(camera.Position, camera.Front, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+    spotLight.setCutOff(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
 
     float pyramid[] = {
                 //coords         //TexCoords       //Normals
@@ -130,23 +115,6 @@ int main() {
             0.0f, 0.0f,0.0f,     0.5f,1.0f,    -2.0f, 2.0f, 0.0f,                 //V0(red)
             -1.0f,-1.0f,-1.0f,   0.0f,0.0f,    -2.0f, 2.0f, 0.0f,                    //V4(blue)
             -1.0f,-1.0f,1.0f,    1.0f,0.0f,    -2.0f, 2.0f, 0.0f                    //V1
-
-            ////lower pyramid
-            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
-            //-1.0f,-1.0f,1.0f,    0.0f,0.0f,                        //V1(green)
-            //1.0f,-1.0f,1.0f,     1.0f,0.0f,                      //V2(blue)
-            //
-            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
-            //1.0f,-1.0f,1.0f,     0.0f,0.0f,                      //V2(blue)
-            //1.0f,-1.0f,-1.0f,    1.0f,0.0f,                       //V3(green)
-            //
-            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                     //V0(red)
-            //1.0f,-1.0f,-1.0f,    0.0f,0.0f,                       //V3(green)
-            //-1.0f,-1.0f,-1.0f,   1.0f,0.0f,                         //V4(blue)
-            //
-            //0.0f, -2.0f,0.0f,     0.5f,1.0f,                      //V0(red)
-            //-1.0f,-1.0f,-1.0f,   0.0f,0.0f,                         //V4(blue)
-            //-1.0f,-1.0f,1.0f,    1.0f,0.0f                        //V1
     };
 
     //float cube[]{
@@ -212,140 +180,71 @@ int main() {
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8* sizeof(float),(void*)(5* sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //textures
-    //Ako se koristi ovako napravljen resurection_stone onda moraju da se napisu i normale vertex-a zbog osvetljenja,
-    //dok kod ucitavanja modela ne mora.(VIDETI STA JE BOLJE)
-    unsigned int tex0;
-    glGenTextures(1,&tex0);
+    unsigned int pyramidTexDiffuse = loadTexture("resources/textures/gold_diffuse.jpg");
+    unsigned int pyramidTexSpecular = loadTexture("resources/textures/gold_specular.jpg");
 
-    int width,height,nrComponents;
-    unsigned char* data = stbi_load(FileSystem::getPath("resources/textures/gold_diffuse.jpg").c_str(),&width,&height,&nrComponents,0);
-    if(data){
-        GLenum format;
-        if(nrComponents == 1)
-            format = GL_RED;
-        else if(nrComponents == 3)
-            format = GL_RGB;
-        else if(nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D,tex0);
-        glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GLFW_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GLFW_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else{
-        std::cerr<<"FAILED TO LOAD TEXTURE\n";
-        stbi_image_free(data);
-        //glfwTerminate();
-    }
-
-    unsigned int tex1;
-    glGenTextures(1,&tex1);
-
-    data = stbi_load(FileSystem::getPath("resources/textures/gold_specular.jpg").c_str(),&width,&height,&nrComponents,0);
-    if(data){
-        GLenum format;
-        if(nrComponents == 1)
-            format = GL_RED;
-        else if(nrComponents == 3)
-            format = GL_RGB;
-        else if(nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D,tex1);
-        glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GLFW_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GLFW_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else{
-        std::cerr<<"FAILED TO LOAD TEXTURE\n";
-        stbi_image_free(data);
-        //glfwTerminate();
-    }
-
-    shader.use();
-    shader.setInt("material.texture_diffuse1",0);
-    shader.setInt("material.texture_specular1", 1);
+    pyramidShader.use();
+    pyramidShader.setInt("material.texture_diffuse1",0);
+    pyramidShader.setInt("material.texture_specular1", 1);
 
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
-    // render loop
-    // -----------
+
     while (!glfwWindowShouldClose(window)) {
-        // per-frame time logic
-        // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
         processInput(window);
 
-        // render
-        // ------
         glClearColor(0.2f,0.2f,0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,tex0);
+        glBindTexture(GL_TEXTURE_2D, pyramidTexDiffuse);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, tex1);
+        glBindTexture(GL_TEXTURE_2D, pyramidTexSpecular);
 
-        // don't forget to enable shader before setting uniforms
-        glm::mat4 model = glm::mat4 (1.0f);
-        //model = rotate(model,(float)glfwGetTime(),glm::vec3(0.0f,1.0f,0.0f));
+
+        glm::mat4 pyramidModel = glm::mat4 (1.0f);
+        //pyramidModel = glm::translate(pyramidModel, glm::vec3(3.0f));
+        //pyramidModel = rotate(pyramidModel,(float)glfwGetTime(),glm::vec3(0.0f,1.0f,0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
         pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime()));
 
-        shader.use();
-        shader.setVec3("pointLight.position", pointLight.position);
-        shader.setVec3("pointLight.ambient", pointLight.ambient);
-        shader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        shader.setVec3("pointLight.specular", pointLight.specular);
-        shader.setFloat("pointLight.constant", pointLight.constant);
-        shader.setFloat("pointLight.linear", pointLight.linear);
-        shader.setFloat("pointLight.quadratic", pointLight.quadratic);
-        shader.setVec3("viewPosition", camera.Position);
-        shader.setFloat("material.shininess", 16.0f);
+        pyramidShader.use();
+        pyramidShader.setLights(dirLight, pointLight, spotLight);
 
-        shader.setMat4("Model",model);
-        shader.setMat4("View",view);
-        shader.setMat4("Projection",projection);
+        pyramidShader.setVec3("spotLight.direction", camera.Front);
+        pyramidShader.setVec3("spotLight.position", camera.Position);
+        pyramidShader.setVec3("viewPosition", camera.Position);
+
+        pyramidShader.setFloat("material.shininess", 16.0f);
+
+        pyramidShader.setMat4("Model",pyramidModel);
+        pyramidShader.setMat4("View",view);
+        pyramidShader.setMat4("Projection",projection);
 
         glBindVertexArray(res_stoneVAO);
-        glDrawArrays(GL_TRIANGLES,0,36);
+        glDrawArrays(GL_TRIANGLES,0,12);
 
         modelShader.use();
-        modelShader.setVec3("pointLight.position", pointLight.position);
-        modelShader.setVec3("pointLight.ambient", pointLight.ambient);
-        modelShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        modelShader.setVec3("pointLight.specular", pointLight.specular);
-        modelShader.setFloat("pointLight.constant", pointLight.constant);
-        modelShader.setFloat("pointLight.linear", pointLight.linear);
-        modelShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        modelShader.setLights(dirLight, pointLight, spotLight);
+
+        modelShader.setVec3("spotLight.direction", camera.Front);
+        modelShader.setVec3("spotLight.position", camera.Position);
         modelShader.setVec3("viewPosition", camera.Position);
+
         modelShader.setFloat("material.shininess", 32.0f);
 
-        model = glm::translate(model, glm::vec3(0.0f, 0.3f, -0.15f));
-        modelShader.setMat4("model",model);
+        glm::mat4 snitchModel = glm::mat4(1.0f);
+        snitchModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.3f, -0.15f));
+        modelShader.setMat4("model", snitchModel);
         modelShader.setMat4("view",view);
         modelShader.setMat4("projection",projection);
-        ourModel.Draw(modelShader);
+        snitch.Draw(modelShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -353,7 +252,7 @@ int main() {
 
     glDeleteVertexArrays(1,&res_stoneVAO);
     glDeleteBuffers(1,&VBO);
-    shader.deleteProgram();
+    pyramidShader.deleteProgram();
     glfwTerminate();
     return 0;
 }
@@ -425,5 +324,41 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             std::cout<<"!!!CREATIVE MODE ACTIVATED!!!\n";
 
     }
+}
 
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
