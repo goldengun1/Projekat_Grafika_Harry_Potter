@@ -86,11 +86,20 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader pyramidShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
+    Shader objShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
 
     Model snitch(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
     snitch.SetShaderTextureNamePrefix("material.");
+
+    Model deathly_hallows(FileSystem::getPath("resources/objects/deathly_hallows/daethly_hallows.obj"));
+    deathly_hallows.SetShaderTextureNamePrefix("material.");
+
+    Model res_stone(FileSystem::getPath("resources/objects/resurrection_stone/res_stone.obj"));
+    res_stone.SetShaderTextureNamePrefix("material.");
+
+    Model elder_wand(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
+    elder_wand.SetShaderTextureNamePrefix("material.");
 
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
@@ -98,7 +107,7 @@ int main() {
     dirLight.setLightComponents(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.2f), glm::vec3(0.5f));
     SpotLight spotLight;
     spotLight.setLightComponents(camera.Position, camera.Front, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f));
-    spotLight.setCutOff(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
+    spotLight.setCutOff(glm::cos(glm::radians(15.0f)), glm::cos(glm::radians(25.0f)));
 
     float pyramid[] = {
                 //coords         //TexCoords       //Normals
@@ -117,6 +126,16 @@ int main() {
             0.0f, 0.0f,0.0f,     0.5f,1.0f,    -2.0f, 2.0f, 0.0f,                 //V0(red)
             -1.0f,-1.0f,-1.0f,   0.0f,0.0f,    -2.0f, 2.0f, 0.0f,                    //V4(blue)
             -1.0f,-1.0f,1.0f,    1.0f,0.0f,    -2.0f, 2.0f, 0.0f                    //V1
+    };
+
+    float floor[]{
+            10.0f, -0.5f,  10.0f,  10.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+            -10.0f, -0.5f,  10.0f,   0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+            -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f,
+
+            10.0f, -0.5f,  10.0f,  10.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+            -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f,
+            10.0f, -0.5f, -10.0f,  10.0f, 10.0f,   0.0f, 1.0f, 0.0f
     };
 
     //float cube[]{
@@ -164,13 +183,14 @@ int main() {
     //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     //};
 
-    unsigned VBO, res_stoneVAO;
-    glGenVertexArrays(1,&res_stoneVAO);
+    unsigned pyramidVBO, pyramidVAO,floorVBO,floorVAO;
+    //pyramid setup
+    glGenVertexArrays(1,&pyramidVAO);
 
-    glBindVertexArray(res_stoneVAO);
+    glBindVertexArray(pyramidVAO);
 
-    glGenBuffers(1,&VBO);
-    glBindBuffer(GL_ARRAY_BUFFER,VBO);
+    glGenBuffers(1,&pyramidVBO);
+    glBindBuffer(GL_ARRAY_BUFFER,pyramidVBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(pyramid),pyramid,GL_STATIC_DRAW);
 
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)0);
@@ -182,12 +202,32 @@ int main() {
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8* sizeof(float),(void*)(5* sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    //floor setup
+    glGenVertexArrays(1,&floorVAO);
+    glBindVertexArray(floorVAO);
+
+    glGenBuffers(1,&floorVBO);
+    glBindBuffer(GL_ARRAY_BUFFER,floorVBO);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(floor),floor,GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8* sizeof(float),(void*)(5* sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+
     unsigned int pyramidTexDiffuse = loadTexture("resources/textures/gold_diffuse.jpg");
     unsigned int pyramidTexSpecular = loadTexture("resources/textures/gold_specular.jpg");
+    unsigned int floorTexDiffuse = loadTexture("resources/textures/stone_floor_diffuse.jpg");
+    unsigned int floorTexSpecular = loadTexture("resources/textures/stone_floor_specular.jpg");
 
-    pyramidShader.use();
-    pyramidShader.setInt("material.texture_diffuse1",0);
-    pyramidShader.setInt("material.texture_specular1", 1);
+    objShader.use();
+    objShader.setInt("material.texture_diffuse1",0);
+    objShader.setInt("material.texture_specular1", 1);
 
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
@@ -209,30 +249,40 @@ int main() {
 
 
         glm::mat4 pyramidModel = glm::mat4 (1.0f);
-        //pyramidModel = glm::translate(pyramidModel, glm::vec3(3.0f));
-        //pyramidModel = rotate(pyramidModel,(float)glfwGetTime(),glm::vec3(0.0f,1.0f,0.0f));
+        pyramidModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.5f, 0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        pointLight.position = glm::vec3(sin(glfwGetTime()), -0.5f, cos(glfwGetTime()));
+        pointLight.position = glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
 
-        pyramidShader.use();
-        pyramidShader.setLights(dirLight, pointLight, spotLight);
+        objShader.use();
+        objShader.setLights(dirLight, pointLight, spotLight);
 
-        pyramidShader.setVec3("spotLight.direction", camera.Front);
-        pyramidShader.setVec3("spotLight.position", camera.Position);
+        objShader.setVec3("spotLight.direction", camera.Front);
+        objShader.setVec3("spotLight.position", camera.Position);
 
-        pyramidShader.setBool("spotLightOn", spotLightOn);
-        pyramidShader.setVec3("viewPosition", camera.Position);
+        objShader.setBool("spotLightOn", spotLightOn);
+        objShader.setVec3("viewPosition", camera.Position);
 
-        pyramidShader.setFloat("material.shininess", 16.0f);
+        objShader.setFloat("material.shininess", 16.0f);
 
-        pyramidShader.setMat4("Model",pyramidModel);
-        pyramidShader.setMat4("View",view);
-        pyramidShader.setMat4("Projection",projection);
+        objShader.setMat4("Model",pyramidModel);
+        objShader.setMat4("View",view);
+        objShader.setMat4("Projection",projection);
 
-        glBindVertexArray(res_stoneVAO);
+        glBindVertexArray(pyramidVAO);
         glDrawArrays(GL_TRIANGLES,0,12);
+
+        //draw floor
+        glm::mat4 floorModel = glm::mat4 (1.0f);
+        objShader.setMat4("Model", floorModel);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, floorTexDiffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, floorTexSpecular);
+        objShader.setFloat("material.shininess", 2.0f);
+        glBindVertexArray(floorVAO);
+        glDrawArrays(GL_TRIANGLES,0,6);
 
         modelShader.use();
         modelShader.setLights(dirLight, pointLight, spotLight);
@@ -245,20 +295,43 @@ int main() {
 
         modelShader.setFloat("material.shininess", 32.0f);
 
-        glm::mat4 snitchModel = glm::mat4(1.0f);
-        snitchModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.3f, -0.15f));
-        modelShader.setMat4("model", snitchModel);
         modelShader.setMat4("view",view);
         modelShader.setMat4("projection",projection);
+
+        glm::mat4 snitchModel = glm::mat4(1.0f);
+        snitchModel = glm::translate(snitchModel, glm::vec3(1.0f, 0.3f, 1.0f));
+        snitchModel = glm::scale(snitchModel,glm::vec3(0.2f));
+        modelShader.setMat4("model", snitchModel);
         snitch.Draw(modelShader);
+
+        glm::mat4 deathlyHallowsModel = glm::mat4 (1.0f);
+        deathlyHallowsModel = glm::translate(deathlyHallowsModel,glm::vec3(-1.0f, 0.0f, 1.0f));
+        deathlyHallowsModel = glm::scale(deathlyHallowsModel,glm::vec3(0.001f));
+        modelShader.setMat4("model",deathlyHallowsModel);
+        deathly_hallows.Draw(modelShader);
+        
+        glm::mat4 resStoneModel = glm::mat4(1.0f);
+        resStoneModel = glm::translate(resStoneModel,glm::vec3(0.0f, 0.5f, 0.0f));
+        resStoneModel = glm::scale(resStoneModel,glm::vec3(0.05f));
+        modelShader.setMat4("model",resStoneModel);
+        res_stone.Draw(modelShader);
+
+        glm::mat4 elderWandModel = glm::mat4 (1.0f);
+        elderWandModel = glm::translate(elderWandModel,camera.Position + glm::vec3(0.05f,-0.05f,-0.25f));
+        elderWandModel = rotate(elderWandModel, glm::radians(20.0f),glm::vec3(1.0f,1.0f,0.0f));
+        elderWandModel = glm::scale(elderWandModel,glm::vec3(0.02f));
+        modelShader.setMat4("model",elderWandModel);
+        elder_wand.Draw(modelShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1,&res_stoneVAO);
-    glDeleteBuffers(1,&VBO);
-    pyramidShader.deleteProgram();
+    glDeleteVertexArrays(1,&pyramidVAO);
+    glDeleteVertexArrays(1,&floorVAO);
+    glDeleteBuffers(1,&pyramidVBO);
+    glDeleteBuffers(1,&floorVBO);
+    objShader.deleteProgram();
     glfwTerminate();
     return 0;
 }
