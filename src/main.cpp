@@ -214,7 +214,7 @@ int main() {
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime()));
+        pointLight.position = glm::vec3(sin(glfwGetTime()), -0.5f, cos(glfwGetTime()));
 
         pyramidShader.use();
         pyramidShader.setLights(dirLight, pointLight, spotLight);
