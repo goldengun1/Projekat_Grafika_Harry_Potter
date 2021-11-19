@@ -35,6 +35,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 // camera
 Camera camera(glm::vec3(0.0f,0.0f,3.0f));
+glm::vec3 defaultFront = glm::vec3 (0.0f,0.0f,-1.0f);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -44,6 +45,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 bool spotLightOn = false;
+bool wand = false;
 
 int main() {
     // glfw: initialize and configure
@@ -317,9 +319,14 @@ int main() {
         res_stone.Draw(modelShader);
 
         glm::mat4 elderWandModel = glm::mat4 (1.0f);
-        elderWandModel = glm::translate(elderWandModel,camera.Position + glm::vec3(0.05f,-0.05f,-0.25f));
-        elderWandModel = rotate(elderWandModel, glm::radians(20.0f),glm::vec3(1.0f,1.0f,0.0f));
+        elderWandModel = glm::translate(elderWandModel,camera.Position);
+        float angle = glm::acos((glm::dot(glm::normalize(camera.Front), defaultFront)) / (glm::length(camera.Front) * glm::length(defaultFront)));
+        glm::vec3 axis = glm::normalize(glm::cross(camera.Front,defaultFront));
+        elderWandModel = glm::rotate(elderWandModel,angle,-axis);
+        elderWandModel = glm::translate(elderWandModel,glm::vec3(0.05f,-0.05f,-0.25f));
+        //elderWandModel = glm::rotate(elderWandModel, glm::radians(20.0f),glm::vec3(1.0f,1.0f,0.0f));
         elderWandModel = glm::scale(elderWandModel,glm::vec3(0.02f));
+        glClear(GL_DEPTH_BUFFER_BIT);
         modelShader.setMat4("model",elderWandModel);
         elder_wand.Draw(modelShader);
 

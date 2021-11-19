@@ -30,6 +30,7 @@ public:
     // camera Attributes
     glm::vec3 Position;
     glm::vec3 Front;
+    glm::vec3 LastFront;
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
@@ -51,6 +52,7 @@ public:
         Yaw = yaw;
         Pitch = pitch;
         CreativeMode = false;
+        LastFront = Front;
         updateCameraVectors();
     }
     // constructor with scalar values
@@ -61,6 +63,7 @@ public:
         Yaw = yaw;
         Pitch = pitch;
         CreativeMode = false;
+        LastFront = Front;
         updateCameraVectors();
     }
 
@@ -118,6 +121,7 @@ public:
         }
 
         // update Front, Right and Up Vectors using the updated Euler angles
+        LastFront = Front;
         updateCameraVectors();
     }
 
