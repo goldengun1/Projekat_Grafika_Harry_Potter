@@ -87,9 +87,12 @@ int main() {
 
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Shader objShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
+    Shader blendingShader("resources/shaders/blendingVertexShader.vert","resources/shaders/blendingFragmentShader.frag");
 
     Model snitch(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
     snitch.SetShaderTextureNamePrefix("material.");
@@ -99,6 +102,7 @@ int main() {
 
     Model res_stone(FileSystem::getPath("resources/objects/resurrection_stone/res_stone.obj"));
     res_stone.SetShaderTextureNamePrefix("material.");
+    glm::vec3 res_stone_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
 
     Model elder_wand(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
     elder_wand.SetShaderTextureNamePrefix("material.");
@@ -251,11 +255,11 @@ int main() {
 
 
         glm::mat4 pyramidModel = glm::mat4 (1.0f);
-        pyramidModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.5f, 0.0f));
+        //pyramidModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.0f, 0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        pointLight.position = glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
+        pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime()));
 
         objShader.use();
         objShader.setLights(dirLight, pointLight, spotLight);
@@ -301,22 +305,18 @@ int main() {
         modelShader.setMat4("projection",projection);
 
         glm::mat4 snitchModel = glm::mat4(1.0f);
-        snitchModel = glm::translate(snitchModel, glm::vec3(1.0f, 0.3f, 1.0f));
+        snitchModel = glm::translate(snitchModel, glm::vec3(1.0f, 0.0f, 1.0f));
         snitchModel = glm::scale(snitchModel,glm::vec3(0.2f));
         modelShader.setMat4("model", snitchModel);
         snitch.Draw(modelShader);
 
         glm::mat4 deathlyHallowsModel = glm::mat4 (1.0f);
-        deathlyHallowsModel = glm::translate(deathlyHallowsModel,glm::vec3(-1.0f, 0.0f, 1.0f));
-        deathlyHallowsModel = glm::scale(deathlyHallowsModel,glm::vec3(0.001f));
+        deathlyHallowsModel = glm::translate(deathlyHallowsModel,res_stone_Pos + glm::vec3(0.0f,0.1f,0.0f));
+        deathlyHallowsModel = glm::rotate(deathlyHallowsModel, (float)glfwGetTime(), glm::vec3(0.0f,1.0f,0.0f));
+        deathlyHallowsModel = glm::scale(deathlyHallowsModel, glm::vec3(0.0004f));
         modelShader.setMat4("model",deathlyHallowsModel);
         deathly_hallows.Draw(modelShader);
-        
-        glm::mat4 resStoneModel = glm::mat4(1.0f);
-        resStoneModel = glm::translate(resStoneModel,glm::vec3(0.0f, 0.5f, 0.0f));
-        resStoneModel = glm::scale(resStoneModel,glm::vec3(0.05f));
-        modelShader.setMat4("model",resStoneModel);
-        res_stone.Draw(modelShader);
+
 
         glm::mat4 elderWandModel = glm::mat4 (1.0f);
         elderWandModel = glm::translate(elderWandModel,camera.Position);
@@ -330,6 +330,25 @@ int main() {
         modelShader.setMat4("model",elderWandModel);
         elder_wand.Draw(modelShader);
 
+        blendingShader.use();
+        glm::mat4 resStoneModel = glm::mat4(1.0f);
+        resStoneModel = glm::translate(resStoneModel,res_stone_Pos);
+        resStoneModel = glm::scale(resStoneModel,glm::vec3(0.05f));
+        blendingShader.setMat4("model",resStoneModel);
+
+        blendingShader.setLights(dirLight, pointLight, spotLight);
+        blendingShader.setVec3("spotLight.direction", camera.Front);
+        blendingShader.setVec3("spotLight.position", camera.Position);
+
+        blendingShader.setBool("spotLightOn", spotLightOn);
+        blendingShader.setVec3("viewPosition", camera.Position);
+
+        blendingShader.setFloat("material.shininess", 32.0f);
+
+        blendingShader.setMat4("view",view);
+        blendingShader.setMat4("projection",projection);
+        res_stone.Draw(blendingShader);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -339,12 +358,13 @@ int main() {
     glDeleteBuffers(1,&pyramidVBO);
     glDeleteBuffers(1,&floorVBO);
     objShader.deleteProgram();
+    modelShader.deleteProgram();
+    blendingShader.deleteProgram();
     glfwTerminate();
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
+
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -367,16 +387,12 @@ void processInput(GLFWwindow *window) {
 
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
+
     glViewport(0, 0, width, height);
 }
 
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     if (firstMouse) {
         lastX = xpos;
@@ -385,7 +401,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float yoffset = lastY - ypos;
 
     lastX = xpos;
     lastY = ypos;
@@ -393,8 +409,6 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     camera.ProcessMouseMovement(xoffset,yoffset);
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     camera.ProcessMouseScroll(yoffset);
 }
