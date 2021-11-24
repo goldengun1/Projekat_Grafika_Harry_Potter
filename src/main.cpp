@@ -30,8 +30,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 unsigned int loadTexture(const char *path);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // camera
 Camera camera(glm::vec3(0.0f,0.0f,3.0f));
@@ -88,7 +88,9 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glCullFace(GL_BACK);
 
     Shader objShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
@@ -97,18 +99,21 @@ int main() {
     Model snitch(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
     snitch.SetShaderTextureNamePrefix("material.");
 
-    Model deathly_hallows(FileSystem::getPath("resources/objects/deathly_hallows/daethly_hallows.obj"));
-    deathly_hallows.SetShaderTextureNamePrefix("material.");
+    Model deathlyHallows(FileSystem::getPath("resources/objects/deathly_hallows/daethly_hallows.obj"));
+    deathlyHallows.SetShaderTextureNamePrefix("material.");
 
-    Model res_stone(FileSystem::getPath("resources/objects/resurrection_stone/res_stone.obj"));
-    res_stone.SetShaderTextureNamePrefix("material.");
+    Model resStone(FileSystem::getPath("resources/objects/resurrection_stone/res_stone.obj"));
+    resStone.SetShaderTextureNamePrefix("material.");
     glm::vec3 res_stone_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    Model elder_wand(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
-    elder_wand.SetShaderTextureNamePrefix("material.");
+    Model elderWand(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
+    elderWand.SetShaderTextureNamePrefix("material.");
 
     Model dementor(FileSystem::getPath("resources/objects/dementor/untitled.obj"));
     dementor.SetShaderTextureNamePrefix("material.");
+
+    Model triwizardCup(FileSystem::getPath("resources/objects/triwizard-cup/TRIWIZARD_CUP_LP.FBX"));
+    triwizardCup.SetShaderTextureNamePrefix("material.");
 
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
@@ -139,12 +144,12 @@ int main() {
 
     float floor[]{
             10.0f, -0.5f,  10.0f,  10.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-            -10.0f, -0.5f,  10.0f,   0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
             -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f,
+            -10.0f, -0.5f,  10.0f,   0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
 
             10.0f, -0.5f,  10.0f,  10.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-            -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f,
-            10.0f, -0.5f, -10.0f,  10.0f, 10.0f,   0.0f, 1.0f, 0.0f
+            10.0f, -0.5f, -10.0f,  10.0f, 10.0f,   0.0f, 1.0f, 0.0f,
+            -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f
     };
 
     //float cube[]{
@@ -233,10 +238,16 @@ int main() {
     unsigned int pyramidTexSpecular = loadTexture("resources/textures/gold_specular.jpg");
     unsigned int floorTexDiffuse = loadTexture("resources/textures/stone_floor_diffuse.jpg");
     unsigned int floorTexSpecular = loadTexture("resources/textures/stone_floor_specular.jpg");
+    unsigned int cupTexDiffuse = loadTexture("resources/objects/triwizard-cup/TRIWIZARD_CUP_BC.png");
+    unsigned int cupTexSpecular = loadTexture("resources/objects/triwizard-cup/TRIWIZARD_CUP_BC.png");
 
     objShader.use();
     objShader.setInt("material.texture_diffuse1",0);
     objShader.setInt("material.texture_specular1", 1);
+
+    modelShader.use();
+    modelShader.setInt("material.texture_diffuse1", 0);
+    modelShader.setInt("material.texture_specular1", 1);
 
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
@@ -251,6 +262,7 @@ int main() {
         glClearColor(0.2f,0.2f,0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //draw pyramid
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, pyramidTexDiffuse);
         glActiveTexture(GL_TEXTURE1);
@@ -258,6 +270,7 @@ int main() {
 
 
         glm::mat4 pyramidModel = glm::mat4 (1.0f);
+        pyramidModel = glm::scale(pyramidModel, glm::vec3(0.5f));
         //pyramidModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.0f, 0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -307,25 +320,42 @@ int main() {
         modelShader.setMat4("view",view);
         modelShader.setMat4("projection",projection);
 
+        //draw snitch
         glm::mat4 snitchModel = glm::mat4(1.0f);
         snitchModel = glm::translate(snitchModel, glm::vec3(1.0f, 0.0f, 1.0f));
         snitchModel = glm::scale(snitchModel,glm::vec3(0.2f));
         modelShader.setMat4("model", snitchModel);
         snitch.Draw(modelShader);
 
+        //draw deathly hallows
         glm::mat4 deathlyHallowsModel = glm::mat4 (1.0f);
         deathlyHallowsModel = glm::translate(deathlyHallowsModel,res_stone_Pos + glm::vec3(0.0f,0.1f,0.0f));
         deathlyHallowsModel = glm::rotate(deathlyHallowsModel, (float)glfwGetTime(), glm::vec3(0.0f,1.0f,0.0f));
         deathlyHallowsModel = glm::scale(deathlyHallowsModel, glm::vec3(0.0004f));
         modelShader.setMat4("model",deathlyHallowsModel);
-        deathly_hallows.Draw(modelShader);
+        deathlyHallows.Draw(modelShader);
 
+        //draw dementor
         glm::mat4 demetorModel = glm::mat4(1.0f);
         demetorModel = glm::translate(demetorModel, glm::vec3(-1.0f, sin(glfwGetTime()*4.0f)/10.0f, 1.0f));
         demetorModel = glm::scale(demetorModel, glm::vec3(0.2f));
         modelShader.setMat4("model",demetorModel);
         dementor.Draw(modelShader);
 
+        //draw triwizard cup
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, cupTexDiffuse);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, cupTexSpecular);
+
+        glm::mat4 cupModel = glm::mat4(1.0f);
+        cupModel = glm::translate(cupModel, glm::vec3(1.5f, 0.0f, 1.5f));
+        cupModel = glm::rotate(cupModel, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+        cupModel = glm::scale(cupModel, glm::vec3(0.01f));
+        modelShader.setMat4("model", cupModel);
+        triwizardCup.Draw(modelShader);
+
+        //draw elderwand
         glm::mat4 elderWandModel = glm::mat4 (1.0f);
         elderWandModel = glm::translate(elderWandModel,camera.Position);
         float angle = glm::acos((glm::dot(glm::normalize(camera.Front), defaultFront)) / (glm::length(camera.Front) * glm::length(defaultFront)));
@@ -336,7 +366,7 @@ int main() {
         elderWandModel = glm::scale(elderWandModel,glm::vec3(0.02f));
         glClear(GL_DEPTH_BUFFER_BIT);
         modelShader.setMat4("model",elderWandModel);
-        elder_wand.Draw(modelShader);
+        elderWand.Draw(modelShader);
 
         blendingShader.use();
         glm::mat4 resStoneModel = glm::mat4(1.0f);
@@ -355,7 +385,7 @@ int main() {
 
         blendingShader.setMat4("view",view);
         blendingShader.setMat4("projection",projection);
-        res_stone.Draw(blendingShader);
+        resStone.Draw(blendingShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
