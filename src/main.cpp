@@ -83,7 +83,7 @@ int main() {
     }
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(true);
+    //stbi_set_flip_vertically_on_load(true);
 
 
     glEnable(GL_DEPTH_TEST);
@@ -106,6 +106,9 @@ int main() {
 
     Model elder_wand(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
     elder_wand.SetShaderTextureNamePrefix("material.");
+
+    Model dementor(FileSystem::getPath("resources/objects/dementor/untitled.obj"));
+    dementor.SetShaderTextureNamePrefix("material.");
 
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
@@ -317,6 +320,11 @@ int main() {
         modelShader.setMat4("model",deathlyHallowsModel);
         deathly_hallows.Draw(modelShader);
 
+        glm::mat4 demetorModel = glm::mat4(1.0f);
+        demetorModel = glm::translate(demetorModel, glm::vec3(-1.0f, sin(glfwGetTime()*4.0f)/10.0f, 1.0f));
+        demetorModel = glm::scale(demetorModel, glm::vec3(0.2f));
+        modelShader.setMat4("model",demetorModel);
+        dementor.Draw(modelShader);
 
         glm::mat4 elderWandModel = glm::mat4 (1.0f);
         elderWandModel = glm::translate(elderWandModel,camera.Position);
