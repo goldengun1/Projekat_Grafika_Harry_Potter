@@ -92,6 +92,7 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glCullFace(GL_BACK);
 
+    Shader lightShader("resources/shaders/light.vert", "resources/shaders/light.frag");
     Shader objShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
     Shader blendingShader("resources/shaders/blendingVertexShader.vert","resources/shaders/blendingFragmentShader.frag");
@@ -152,52 +153,65 @@ int main() {
             -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f
     };
 
-    //float cube[]{
-    //
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-    //    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-    //
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    //    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    //    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    //    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //
-    //    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //
-    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    //    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    //    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    //
-    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    //    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    //    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    //};
+    float cube[]{
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+    
+        -0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+    
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+    
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+    
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
+    
+        -0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f
+    };
 
     unsigned pyramidVBO, pyramidVAO,floorVBO,floorVAO;
+    unsigned lightVAO, lightVBO;
+
+    //light setup
+    glGenVertexArrays(1,&lightVAO);
+
+    glBindVertexArray(lightVAO);
+
+    glGenBuffers(1,&lightVBO);
+    glBindBuffer(GL_ARRAY_BUFFER,lightVBO);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(cube),cube,GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 3 * sizeof(float),(void*)0);
+    glEnableVertexAttribArray(0);
+
     //pyramid setup
     glGenVertexArrays(1,&pyramidVAO);
 
@@ -267,7 +281,6 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, pyramidTexDiffuse);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, pyramidTexSpecular);
-
 
         glm::mat4 pyramidModel = glm::mat4 (1.0f);
         pyramidModel = glm::scale(pyramidModel, glm::vec3(0.5f));
@@ -368,6 +381,7 @@ int main() {
         modelShader.setMat4("model",elderWandModel);
         elderWand.Draw(modelShader);
 
+        //draw res stone
         blendingShader.use();
         glm::mat4 resStoneModel = glm::mat4(1.0f);
         resStoneModel = glm::translate(resStoneModel,res_stone_Pos);
@@ -386,6 +400,22 @@ int main() {
         blendingShader.setMat4("view",view);
         blendingShader.setMat4("projection",projection);
         resStone.Draw(blendingShader);
+
+        //draw light
+        glm::mat4 lightModel = glm::mat4(1.0f);
+        lightModel = glm::translate(lightModel, pointLight.position);
+        lightModel = glm::scale(lightModel, glm::vec3(0.1f));
+
+        lightShader.use();
+        lightShader.setMat4("model", lightModel);
+        lightShader.setMat4("view", view);
+        lightShader.setMat4("projection", projection);
+        lightShader.setVec3("lightColor", glm::vec3(1.0f));
+
+        glDisable(GL_CULL_FACE);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glEnable(GL_CULL_FACE);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
