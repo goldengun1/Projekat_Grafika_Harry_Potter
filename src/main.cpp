@@ -116,6 +116,10 @@ int main() {
     Model triwizardCup(FileSystem::getPath("resources/objects/triwizard-cup/TRIWIZARD_CUP_LP.FBX"));
     triwizardCup.SetShaderTextureNamePrefix("material.");
 
+    Model maze(FileSystem::getPath("resources/objects/maze/untitled.obj"));
+    maze.SetShaderTextureNamePrefix("material.");
+    glm::vec3 mazePos = glm::vec3(6.0f,-0.8f,0.0f);
+
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
     DirLight dirLight;
@@ -355,6 +359,13 @@ int main() {
         modelShader.setMat4("model",demetorModel);
         dementor.Draw(modelShader);
 
+        //draw maze
+        glm::mat4 mazeModel = glm::mat4 (1.0f);
+        mazeModel = glm::translate(mazeModel,mazePos);
+        mazeModel = glm::scale(mazeModel,glm::vec3(1.5f));
+        modelShader.setMat4("model",mazeModel);
+        maze.Draw(modelShader);
+
         //draw triwizard cup
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cupTexDiffuse);
@@ -362,7 +373,7 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, cupTexSpecular);
 
         glm::mat4 cupModel = glm::mat4(1.0f);
-        cupModel = glm::translate(cupModel, glm::vec3(1.5f, 0.0f, 1.5f));
+        cupModel = glm::translate(cupModel, mazePos + glm::vec3(0.0f,0.75f,0.0f));
         cupModel = glm::rotate(cupModel, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
         cupModel = glm::scale(cupModel, glm::vec3(0.01f));
         modelShader.setMat4("model", cupModel);
@@ -375,11 +386,12 @@ int main() {
         glm::vec3 axis = glm::normalize(glm::cross(camera.Front,defaultFront));
         elderWandModel = glm::rotate(elderWandModel,angle,-axis);
         elderWandModel = glm::translate(elderWandModel,glm::vec3(0.05f,-0.05f,-0.25f));
-        //elderWandModel = glm::rotate(elderWandModel, glm::radians(20.0f),glm::vec3(1.0f,1.0f,0.0f));
+        elderWandModel = glm::rotate(elderWandModel, glm::radians(20.0f),glm::vec3(1.0f,1.0f,0.0f));
         elderWandModel = glm::scale(elderWandModel,glm::vec3(0.02f));
-        glClear(GL_DEPTH_BUFFER_BIT);
+        //glClear(GL_DEPTH_BUFFER_BIT);
         modelShader.setMat4("model",elderWandModel);
         elderWand.Draw(modelShader);
+
 
         //draw res stone
         blendingShader.use();
@@ -523,8 +535,8 @@ unsigned int loadTexture(char const * path)
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

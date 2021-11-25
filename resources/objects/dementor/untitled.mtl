@@ -10,6 +10,7 @@ Ni 1.450000
 d 1.000000
 illum 2
 map_Kd Ghost_Base.png
+map_Ks Ghost_Base_Specular.png
 
 
 newmtl Ghost_Cloth_Alpha
@@ -21,4 +22,5 @@ Ni 1.450000
 d 1.000000
 illum 2
 map_Kd Ghost_Ragged_Base.png
+map_Ks Ghost_Ragged_Base_Specular.png
 
