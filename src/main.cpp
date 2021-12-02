@@ -485,14 +485,16 @@ int main() {
         glfwPollEvents();
     }
 
-    //TODO: check deletes
     glDeleteVertexArrays(1,&pyramidVAO);
     glDeleteVertexArrays(1,&floorVAO);
+    glDeleteVertexArrays(1,&lightVAO);
     glDeleteBuffers(1,&pyramidVBO);
     glDeleteBuffers(1,&floorVBO);
+    glDeleteBuffers(1,&lightVBO);
     objShader.deleteProgram();
     modelShader.deleteProgram();
     blendingShader.deleteProgram();
+    lightShader.deleteProgram();
     glfwTerminate();
     return 0;
 }
