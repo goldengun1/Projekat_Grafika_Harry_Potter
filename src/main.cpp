@@ -30,8 +30,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 unsigned int loadTexture(const char *path);
 
 // settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 960;
 
 // camera
 Camera camera(glm::vec3(0.0f,0.0f,3.0f));
@@ -105,7 +105,7 @@ int main() {
 
     Model resStone(FileSystem::getPath("resources/objects/resurrection_stone/res_stone.obj"));
     resStone.SetShaderTextureNamePrefix("material.");
-    glm::vec3 res_stone_Pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 res_stone_Pos = glm::vec3(-2.0f, 0.0f, 1.0f);
 
     Model elderWand(FileSystem::getPath("resources/objects/wand/newtwand.obj"));
     elderWand.SetShaderTextureNamePrefix("material.");
@@ -118,7 +118,8 @@ int main() {
 
     Model maze(FileSystem::getPath("resources/objects/maze/untitled.obj"));
     maze.SetShaderTextureNamePrefix("material.");
-    glm::vec3 mazePos = glm::vec3(6.0f,-0.8f,0.0f);
+    glm::vec3 mazePos = glm::vec3(0.0f,-0.8f,-5.0f);
+
 
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
@@ -129,7 +130,7 @@ int main() {
     spotLight.setCutOff(glm::cos(glm::radians(15.0f)), glm::cos(glm::radians(25.0f)));
 
     float pyramid[] = {
-                //coords         //TexCoords       //Normals
+            //coords         //TexCoords       //Normals
             0.0f, 0.0f,0.0f,     0.5f,1.0f,     0.0f, 2.0f, 2.0f,                //V0(red)
             -1.0f,-1.0f,1.0f,    0.0f,0.0f,     0.0f, 2.0f, 2.0f,                   //V1(green)
             1.0f,-1.0f,1.0f,     1.0f,0.0f,     0.0f, 2.0f, 2.0f,                 //V2(blue)
@@ -158,47 +159,47 @@ int main() {
     };
 
     float cube[]{
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-    
-        -0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-    
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-    
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-    
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-    
-        -0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f
+            -0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f,  0.5f, -0.5f,
+            0.5f,  0.5f, -0.5f,
+            -0.5f,  0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+
+            -0.5f, -0.5f,  0.5f,
+            0.5f, -0.5f,  0.5f,
+            0.5f,  0.5f,  0.5f,
+            0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+            -0.5f, -0.5f,  0.5f,
+
+            -0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+
+            0.5f,  0.5f,  0.5f,
+            0.5f,  0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f,  0.5f,
+            0.5f,  0.5f,  0.5f,
+
+            -0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f,  0.5f,
+            0.5f, -0.5f,  0.5f,
+            -0.5f, -0.5f,  0.5f,
+            -0.5f, -0.5f, -0.5f,
+
+            -0.5f,  0.5f, -0.5f,
+            0.5f,  0.5f, -0.5f,
+            0.5f,  0.5f,  0.5f,
+            0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f, -0.5f
     };
 
     unsigned pyramidVBO, pyramidVAO,floorVBO,floorVAO;
@@ -287,12 +288,12 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, pyramidTexSpecular);
 
         glm::mat4 pyramidModel = glm::mat4 (1.0f);
+        pyramidModel = glm::translate(pyramidModel, res_stone_Pos);
         pyramidModel = glm::scale(pyramidModel, glm::vec3(0.5f));
-        //pyramidModel = glm::translate(pyramidModel, glm::vec3(0.0f, 0.0f, 0.0f));
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime()));
+        pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime())) + res_stone_Pos;
 
         objShader.use();
         objShader.setLights(dirLight, pointLight, spotLight);
@@ -314,6 +315,8 @@ int main() {
 
         //draw floor
         glm::mat4 floorModel = glm::mat4 (1.0f);
+        floorModel = glm::translate(floorModel, glm::vec3(0.0f,-0.1f,-3.0f));
+        floorModel = glm::scale(floorModel, glm::vec3(0.7f));
         objShader.setMat4("Model", floorModel);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexDiffuse);
@@ -339,8 +342,9 @@ int main() {
 
         //draw snitch
         glm::mat4 snitchModel = glm::mat4(1.0f);
-        snitchModel = glm::translate(snitchModel, glm::vec3(1.0f, 0.0f, 1.0f));
-        snitchModel = glm::scale(snitchModel,glm::vec3(0.2f));
+        snitchModel = glm::translate(snitchModel, glm::vec3(0.2f, 0.0f, -1.0f) + camera.Position);
+        snitchModel = glm::translate(snitchModel, glm::vec3(cos(glfwGetTime())/3.0f,sin(glfwGetTime()) * cos(glfwGetTime())/3.0f,0.0f));
+        snitchModel = glm::scale(snitchModel,glm::vec3(0.1f));
         modelShader.setMat4("model", snitchModel);
         snitch.Draw(modelShader);
 
@@ -352,12 +356,24 @@ int main() {
         modelShader.setMat4("model",deathlyHallowsModel);
         deathlyHallows.Draw(modelShader);
 
-        //draw dementor
-        glm::mat4 demetorModel = glm::mat4(1.0f);
-        demetorModel = glm::translate(demetorModel, glm::vec3(-1.0f, sin(glfwGetTime()*4.0f)/10.0f, 1.0f));
-        demetorModel = glm::scale(demetorModel, glm::vec3(0.2f));
-        modelShader.setMat4("model",demetorModel);
-        dementor.Draw(modelShader);
+        //draw dementors
+        glm::vec3 levitatingFunc = glm::vec3 (0.0f, sin(glfwGetTime()*4.0f)/10.0f,0.0f);
+        for(int i = 0;i<4;++i){
+            glm::mat4 dementorModel = glm::mat4(1.0f);
+            if(i == 3){
+                dementorModel = glm::translate(dementorModel, levitatingFunc + glm::vec3(-1.0f,0.0f,0.0f));
+                dementorModel = glm::rotate(dementorModel,glm::radians(20.0f),glm::vec3(0.0f,1.0f,0.0f));
+                dementorModel = glm::scale(dementorModel, glm::vec3(0.2f));
+                modelShader.setMat4("model",dementorModel);
+            } else{
+                dementorModel = glm::translate(dementorModel, mazePos + glm::vec3(0.0f,(float)i+2,0.0f) + levitatingFunc);
+                dementorModel = glm::translate(dementorModel,glm::vec3(sin(glfwGetTime())*i*tan(glfwGetTime()),0.0f,cos(glfwGetTime())*i));
+                dementorModel = glm::rotate(dementorModel,glm::radians(90.0f),glm::vec3(1.0f,0.0f,0.0f));
+                dementorModel = glm::scale(dementorModel, glm::vec3(0.2f));
+                modelShader.setMat4("model",dementorModel);
+            }
+            dementor.Draw(modelShader);
+        }
 
         //draw maze
         glm::mat4 mazeModel = glm::mat4 (1.0f);
