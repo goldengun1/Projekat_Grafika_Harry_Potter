@@ -170,19 +170,51 @@ public:
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void setLights(DirLight dirLight, PointLight pointLight, SpotLight spotLight){
+    void setLights(DirLight dirLight, PointLight pointLight, PointLight bluePointLight, SpotLight spotLight){
         setVec3("dirLight.direction", dirLight.direction);
         setVec3("dirLight.ambient", dirLight.ambient);
         setVec3("dirLight.diffuse", dirLight.diffuse);
         setVec3("dirLight.specular", dirLight.specular);
 
-        setVec3("pointLight.position", pointLight.position);
-        setVec3("pointLight.ambient", pointLight.ambient);
-        setVec3("pointLight.diffuse", pointLight.diffuse);
-        setVec3("pointLight.specular", pointLight.specular);
-        setFloat("pointLight.constant", pointLight.constant);
-        setFloat("pointLight.linear", pointLight.linear);
-        setFloat("pointLight.quadratic", pointLight.quadratic);
+        setVec3("pointLights[0].position", pointLight.position);
+        setVec3("pointLights[0].ambient", pointLight.ambient);
+        setVec3("pointLights[0].diffuse", pointLight.diffuse);
+        setVec3("pointLights[0].specular", pointLight.specular);
+        setFloat("pointLights[0].constant", pointLight.constant);
+        setFloat("pointLights[0].linear", pointLight.linear);
+        setFloat("pointLights[0].quadratic", pointLight.quadratic);
+
+        setVec3("pointLights[1].position", pointLight.position);
+        setVec3("pointLights[1].ambient", pointLight.ambient);
+        setVec3("pointLights[1].diffuse", pointLight.diffuse);
+        setVec3("pointLights[1].specular", pointLight.specular);
+        setFloat("pointLights[1].constant", pointLight.constant);
+        setFloat("pointLights[1].linear", pointLight.linear);
+        setFloat("pointLights[1].quadratic", pointLight.quadratic);
+
+        setVec3("pointLights[2].position", pointLight.position);
+        setVec3("pointLights[2].ambient", pointLight.ambient);
+        setVec3("pointLights[2].diffuse", pointLight.diffuse);
+        setVec3("pointLights[2].specular", pointLight.specular);
+        setFloat("pointLights[2].constant", pointLight.constant);
+        setFloat("pointLights[2].linear", pointLight.linear);
+        setFloat("pointLights[2].quadratic", pointLight.quadratic);
+
+        setVec3("pointLights[3].position", pointLight.position);
+        setVec3("pointLights[3].ambient", pointLight.ambient);
+        setVec3("pointLights[3].diffuse", pointLight.diffuse);
+        setVec3("pointLights[3].specular", pointLight.specular);
+        setFloat("pointLights[3].constant", pointLight.constant);
+        setFloat("pointLights[3].linear", pointLight.linear);
+        setFloat("pointLights[3].quadratic", pointLight.quadratic);
+
+        setVec3("pointLights[4].position", bluePointLight.position);
+        setVec3("pointLights[4].ambient", bluePointLight.ambient);
+        setVec3("pointLights[4].diffuse", bluePointLight.diffuse);
+        setVec3("pointLights[4].specular", bluePointLight.specular);
+        setFloat("pointLights[4].constant", bluePointLight.constant);
+        setFloat("pointLights[4].linear", bluePointLight.linear);
+        setFloat("pointLights[4].quadratic", bluePointLight.quadratic);
 
         setVec3("spotLight.ambient", spotLight.ambient);
         setVec3("spotLight.diffuse", spotLight.diffuse);

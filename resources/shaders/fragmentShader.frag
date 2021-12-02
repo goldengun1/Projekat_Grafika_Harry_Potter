@@ -43,12 +43,14 @@ struct Material {
     float shininess;
 };
 
+#define NR_POINT_LIGHTS 5
+
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
 uniform DirLight dirLight;
-uniform PointLight pointLight;
+uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
 
@@ -66,12 +68,11 @@ void main()
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPosition - FragPos);
     vec3 result = CalcDirLight(dirLight, normal, viewDir);
-    result += CalcPointLight(pointLight, normal, FragPos, viewDir);
-
+    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    result += CalcPointLight(pointLights[i], normal, FragPos, viewDir);
     if(spotLightOn){
         result += CalcSpotLight(spotLight, normal, FragPos, viewDir);
     }
-
     FragColor = vec4(result, 1.0);
 }
 
@@ -82,7 +83,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
 
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = CalcBlinPhongSpecular(lightDir, viewDir,normal);
+    float spec = CalcBlinPhongSpecular(lightDir,viewDir,normal);
 
     vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
@@ -97,7 +98,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
 
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = CalcBlinPhongSpecular(lightDir, viewDir,normal);
+    float spec = CalcBlinPhongSpecular(lightDir,viewDir,normal);
 
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
@@ -118,7 +119,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
 
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = CalcBlinPhongSpecular(lightDir, viewDir,normal);
+    float spec = CalcBlinPhongSpecular(lightDir,viewDir,normal);
 
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));

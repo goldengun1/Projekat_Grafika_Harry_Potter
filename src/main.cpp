@@ -30,22 +30,23 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 unsigned int loadTexture(const char *path);
 
 // settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 960;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // camera
 Camera camera(glm::vec3(0.0f,0.0f,3.0f));
 glm::vec3 defaultFront = glm::vec3 (0.0f,0.0f,-1.0f);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
 
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+bool firstMouse = true;
 bool spotLightOn = false;
 bool wand = false;
+bool movement = true;
 
 int main() {
     // glfw: initialize and configure
@@ -122,7 +123,9 @@ int main() {
 
 
     PointLight pointLight;
-    pointLight.setLightComponents(glm::vec3(4.0), glm::vec3(0.2f), glm::vec3(0.9f), glm::vec3(1.0f));
+    pointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(1.0f, 0.74f, 0.32f), glm::vec3(1.0f, 0.74f, 0.32f));
+    PointLight bluePointLight;
+    bluePointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(0.0f, 0.8f, 1.0f), glm::vec3(0.0f, 0.8f, 1.0f));
     DirLight dirLight;
     dirLight.setLightComponents(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.2f), glm::vec3(0.5f));
     SpotLight spotLight;
@@ -202,6 +205,13 @@ int main() {
             -0.5f,  0.5f, -0.5f
     };
 
+    glm::vec3 pointLightPositions[] = {
+            glm::vec3(5.0f, 10.0f, 2.0f),
+            glm::vec3(-5.0f, 10.0f, 2.0f),
+            glm::vec3(5.0f, 10.0f, -8.0f),
+            glm::vec3(-5.0f, 10.0f, -8.0f)
+    };
+
     unsigned pyramidVBO, pyramidVAO,floorVBO,floorVAO;
     unsigned lightVAO, lightVBO;
 
@@ -255,8 +265,8 @@ int main() {
 
     unsigned int pyramidTexDiffuse = loadTexture("resources/textures/gold_diffuse.jpg");
     unsigned int pyramidTexSpecular = loadTexture("resources/textures/gold_specular.jpg");
-    unsigned int floorTexDiffuse = loadTexture("resources/textures/stone_floor_diffuse.jpg");
-    unsigned int floorTexSpecular = loadTexture("resources/textures/stone_floor_specular.jpg");
+    unsigned int floorTexDiffuse = loadTexture("resources/textures/dirt_floor_diffuse.jpg");
+    unsigned int floorTexSpecular = loadTexture("resources/textures/dirt_floor_specular.jpg");
     unsigned int cupTexDiffuse = loadTexture("resources/objects/triwizard-cup/TRIWIZARD_CUP_BC.png");
     unsigned int cupTexSpecular = loadTexture("resources/objects/triwizard-cup/TRIWIZARD_CUP_BC.png");
 
@@ -293,10 +303,17 @@ int main() {
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime())) + res_stone_Pos;
+        //pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime())) + res_stone_Pos;
+        bluePointLight.position = glm::vec3(sin(glfwGetTime()) * 0.5f, 0.5f, cos(glfwGetTime()) * 0.5f) + mazePos;
 
         objShader.use();
-        objShader.setLights(dirLight, pointLight, spotLight);
+        objShader.setLights(dirLight, pointLight, bluePointLight, spotLight);
+
+        objShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+        objShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+        objShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+        objShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+        objShader.setVec3("pointLights[4].position", bluePointLight.position);
 
         objShader.setVec3("spotLight.direction", camera.Front);
         objShader.setVec3("spotLight.position", camera.Position);
@@ -327,7 +344,13 @@ int main() {
         glDrawArrays(GL_TRIANGLES,0,6);
 
         modelShader.use();
-        modelShader.setLights(dirLight, pointLight, spotLight);
+        modelShader.setLights(dirLight, pointLight, bluePointLight, spotLight);
+
+        modelShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+        modelShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+        modelShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+        modelShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+        modelShader.setVec3("pointLights[4].position", bluePointLight.position);
 
         modelShader.setVec3("spotLight.direction", camera.Front);
         modelShader.setVec3("spotLight.position", camera.Position);
@@ -343,7 +366,10 @@ int main() {
         //draw snitch
         glm::mat4 snitchModel = glm::mat4(1.0f);
         snitchModel = glm::translate(snitchModel, glm::vec3(0.2f, 0.0f, -1.0f) + camera.Position);
-        snitchModel = glm::translate(snitchModel, glm::vec3(cos(glfwGetTime())/3.0f,sin(glfwGetTime()) * cos(glfwGetTime())/3.0f,0.0f));
+        if (movement) {
+            snitchModel = glm::translate(snitchModel, glm::vec3(cos(glfwGetTime()) / 3.0f,
+                                                                sin(glfwGetTime()) * cos(glfwGetTime()) / 3.0f, 0.0f));
+        }
         snitchModel = glm::scale(snitchModel,glm::vec3(0.1f));
         modelShader.setMat4("model", snitchModel);
         snitch.Draw(modelShader);
@@ -416,7 +442,14 @@ int main() {
         resStoneModel = glm::scale(resStoneModel,glm::vec3(0.05f));
         blendingShader.setMat4("model",resStoneModel);
 
-        blendingShader.setLights(dirLight, pointLight, spotLight);
+        blendingShader.setLights(dirLight, pointLight, bluePointLight, spotLight);
+
+        objShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+        objShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+        objShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+        objShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+        objShader.setVec3("pointLights[4].position", bluePointLight.position);
+
         blendingShader.setVec3("spotLight.direction", camera.Front);
         blendingShader.setVec3("spotLight.position", camera.Position);
 
@@ -430,25 +463,29 @@ int main() {
         resStone.Draw(blendingShader);
 
         //draw light
-        glm::mat4 lightModel = glm::mat4(1.0f);
-        lightModel = glm::translate(lightModel, pointLight.position);
-        lightModel = glm::scale(lightModel, glm::vec3(0.1f));
-
         lightShader.use();
-        lightShader.setMat4("model", lightModel);
+
         lightShader.setMat4("view", view);
         lightShader.setMat4("projection", projection);
-        lightShader.setVec3("lightColor", glm::vec3(1.0f));
+        lightShader.setVec3("lightColor", pointLight.diffuse);
 
         glDisable(GL_CULL_FACE);
         glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            glm::mat4 lightModel = glm::mat4(1.0f);
+            lightModel = glm::translate(lightModel, pointLightPositions[i]);
+            lightModel = glm::scale(lightModel, glm::vec3(0.2f)); // Make it a smaller cube
+            lightShader.setMat4("model", lightModel);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         glEnable(GL_CULL_FACE);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    //TODO: check deletes
     glDeleteVertexArrays(1,&pyramidVAO);
     glDeleteVertexArrays(1,&floorVAO);
     glDeleteBuffers(1,&pyramidVBO);
@@ -527,6 +564,15 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             std::cout<<"!!!SPOTLIGHT ENABLED!!!\n";
         else
             std::cout<<"!!!SPOTLIGHT DISABLED!!!\n";
+    }
+
+    if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+        movement = !movement;
+
+        if(movement)
+            std::cout<<"!!!SNITCH IS FLYING!!! CATCH IT!!!\n";
+        else
+            std::cout<<"!!!SNITCH IS RESTING!!! NOW IT IS EASY.. \n";
     }
 }
 
