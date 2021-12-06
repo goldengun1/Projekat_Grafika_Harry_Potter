@@ -49,6 +49,8 @@ bool firstMouse = true;
 bool spotLightOn = false;
 bool wand = false;
 bool movement = true;
+bool blurr = false;
+//TODO add more spells for framebuffer post processing
 
 int main() {
     // glfw: initialize and configure
@@ -128,6 +130,7 @@ int main() {
     glm::vec3 mazePos = glm::vec3(0.0f,-0.8f,-5.0f);
 
     //lights setup(those that are not changing)
+    //TODO set dirlight direction to be from the brightest part of the skybox
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(1.0f, 0.74f, 0.32f), glm::vec3(1.0f, 0.74f, 0.32f));
     PointLight bluePointLight;
@@ -638,6 +641,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         screenShader.use();
+        screenShader.setBool("blurr",blurr);
         glBindVertexArray(screenVAO);
         glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
         glDrawArrays(GL_TRIANGLES,0,6);
@@ -681,9 +685,11 @@ void processInput(GLFWwindow *window) {
 
     if(glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
         camera.MovementSpeed = camera.DefaultSpeed * 5.0f;
+        blurr = true;
     }
     if(glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
         camera.MovementSpeed = camera.DefaultSpeed;
+        blurr = false;
     }
 
 }
