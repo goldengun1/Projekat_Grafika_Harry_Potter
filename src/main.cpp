@@ -95,12 +95,15 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glCullFace(GL_BACK);
 
+    //creating shaders
     Shader lightShader("resources/shaders/light.vert", "resources/shaders/light.frag");
     Shader objShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
     Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
     Shader blendingShader("resources/shaders/blendingVertexShader.vert","resources/shaders/blendingFragmentShader.frag");
     Shader skyboxShader("resources/shaders/skyboxShader.vert", "resources/shaders/skyboxShader.frag");
+    Shader screenShader("resources/shaders/framebufferScreenShader.vert", "resources/shaders/framebufferScreenShader.frag");
 
+    //loading models
     Model snitch(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
     snitch.SetShaderTextureNamePrefix("material.");
 
@@ -124,7 +127,7 @@ int main() {
     maze.SetShaderTextureNamePrefix("material.");
     glm::vec3 mazePos = glm::vec3(0.0f,-0.8f,-5.0f);
 
-
+    //lights setup(those that are not changing)
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(1.0f, 0.74f, 0.32f), glm::vec3(1.0f, 0.74f, 0.32f));
     PointLight bluePointLight;
@@ -252,6 +255,17 @@ int main() {
             1.0f, -1.0f,  1.0f
     };
 
+    float screenQuad[] = {
+            // positions                // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f
+    };
+
     glm::vec3 pointLightPositions[] = {
             glm::vec3(5.0f, 10.0f, 2.0f),
             glm::vec3(-5.0f, 10.0f, 2.0f),
@@ -259,9 +273,11 @@ int main() {
             glm::vec3(-5.0f, 10.0f, -8.0f)
     };
 
-    unsigned pyramidVBO, pyramidVAO,floorVBO,floorVAO;
+    unsigned pyramidVBO, pyramidVAO;
+    unsigned floorVBO,floorVAO;
     unsigned lightVAO, lightVBO;
     unsigned skyboxVAO, skyboxVBO;
+    unsigned screenVAO,screenVBO;
 
     //skybox setup
     glGenVertexArrays(1,&skyboxVAO);
@@ -296,13 +312,13 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER,pyramidVBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(pyramid),pyramid,GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)(3* sizeof(float)));
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8* sizeof(float),(void*)(5* sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(5* sizeof(float)));
     glEnableVertexAttribArray(2);
 
     //floor setup
@@ -313,14 +329,29 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER,floorVBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(floor),floor,GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8* sizeof(float),(void*)(3* sizeof(float)));
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8* sizeof(float),(void*)(5* sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(5* sizeof(float)));
     glEnableVertexAttribArray(2);
+
+    //screen quad setup
+    glGenVertexArrays(1,&screenVAO);
+    glBindVertexArray(screenVAO);
+
+    glGenBuffers(1,&screenVBO);
+    glBindBuffer(GL_ARRAY_BUFFER,screenVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuad),screenQuad,GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
 
     unsigned int pyramidTexDiffuse = loadTexture("resources/textures/gold_diffuse.jpg");
@@ -351,9 +382,35 @@ int main() {
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
 
+    screenShader.use();
+    screenShader.setInt("screenTexture",0);
+
     //TODO: check unbinding
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
+
+    unsigned framebuffer;
+    glGenFramebuffers(1,&framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+
+    unsigned textureColorBuffer;
+    glGenTextures(1,&textureColorBuffer);
+    glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+    unsigned renderbuffer;
+    glGenRenderbuffers(1,&renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER,renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        cout << "!!!FRAMEBUFFER CREATING FAILED!!!" << endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -361,6 +418,10 @@ int main() {
         lastFrame = currentFrame;
 
         processInput(window);
+
+        //binding framebuffer before we start drawing everything
+        glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+        glEnable(GL_DEPTH_TEST);
 
         glClearColor(0.2f,0.2f,0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -571,6 +632,16 @@ int main() {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+        glDisable(GL_DEPTH_TEST);
+        glClearColor(0.0f,0.0f,0.0f,1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        screenShader.use();
+        glBindVertexArray(screenVAO);
+        glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
+        glDrawArrays(GL_TRIANGLES,0,6);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -578,13 +649,17 @@ int main() {
     glDeleteVertexArrays(1,&pyramidVAO);
     glDeleteVertexArrays(1,&floorVAO);
     glDeleteVertexArrays(1,&lightVAO);
+    glDeleteVertexArrays(1,&screenVAO);
     glDeleteBuffers(1,&pyramidVBO);
     glDeleteBuffers(1,&floorVBO);
     glDeleteBuffers(1,&lightVBO);
+    glDeleteBuffers(1,&screenVBO);
     objShader.deleteProgram();
     modelShader.deleteProgram();
     blendingShader.deleteProgram();
     lightShader.deleteProgram();
+    skyboxShader.deleteProgram();
+    screenShader.deleteProgram();
     glfwTerminate();
     return 0;
 }
