@@ -359,18 +359,18 @@ int main() {
 
     unsigned int pyramidTexDiffuse = loadTexture("resources/textures/gold_diffuse.jpg");
     unsigned int pyramidTexSpecular = loadTexture("resources/textures/gold_specular.jpg");
-    unsigned int floorTexDiffuse = loadTexture("resources/textures/dirt_floor_diffuse.jpg");
-    unsigned int floorTexSpecular = loadTexture("resources/textures/dirt_floor_specular.jpg");
+    unsigned int floorTexDiffuse = loadTexture("resources/textures/earth.jpg");
+    unsigned int floorTexSpecular = loadTexture("resources/textures/earth.jpg");
     unsigned int cupTexDiffuse = loadTexture("resources/objects/triwizard-cup/TRIWIZARD_CUP_BC.png");
     unsigned int cupTexSpecular = loadTexture("resources/objects/triwizard-cup/TRIWIZARD_CUP_BC.png");
 
     vector<std::string> faces {
-        FileSystem::getPath("resources/textures/skybox/right.jpg"),
-        FileSystem::getPath("resources/textures/skybox/left.jpg"),
-        FileSystem::getPath("resources/textures/skybox/top.jpg"),
-        FileSystem::getPath("resources/textures/skybox/bottom.jpg"),
-        FileSystem::getPath("resources/textures/skybox/front.jpg"),
-        FileSystem::getPath("resources/textures/skybox/back.jpg")
+        FileSystem::getPath("resources/textures/skybox/right.png"),
+        FileSystem::getPath("resources/textures/skybox/left.png"),
+        FileSystem::getPath("resources/textures/skybox/top.png"),
+        FileSystem::getPath("resources/textures/skybox/bottom.png"),
+        FileSystem::getPath("resources/textures/skybox/front.png"),
+        FileSystem::getPath("resources/textures/skybox/back.png")
     };
     unsigned int cubemapTexture = loadCubemap(faces);
 
@@ -467,7 +467,6 @@ int main() {
 
         glBindVertexArray(pyramidVAO);
         glDrawArrays(GL_TRIANGLES,0,12);
-
         //draw floor
         glm::mat4 floorModel = glm::mat4 (1.0f);
         floorModel = glm::translate(floorModel, glm::vec3(0.0f,-0.1f,-3.0f));
@@ -637,7 +636,7 @@ int main() {
 
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         glDisable(GL_DEPTH_TEST);
-        glClearColor(0.0f,0.0f,0.0f,1.0f);
+        glClearColor(1.0f,0.0f,0.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         screenShader.use();
