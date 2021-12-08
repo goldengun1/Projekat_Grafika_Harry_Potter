@@ -92,16 +92,17 @@ int main() {
 
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glEnable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glCullFace(GL_BACK);
 
     //creating shaders
-    Shader lightShader("resources/shaders/light.vert", "resources/shaders/light.frag");
-    Shader objShader("resources/shaders/vertexShader.vert","resources/shaders/fragmentShader.frag");
-    Shader modelShader("resources/shaders/modelVertexShader.vert","resources/shaders/modelFragmentShader.frag");
-    Shader blendingShader("resources/shaders/blendingVertexShader.vert","resources/shaders/blendingFragmentShader.frag");
+    Shader lightShader("resources/shaders/lightShader.vert", "resources/shaders/lightShader.frag");
+    Shader objShader("resources/shaders/modelShader.vert","resources/shaders/modelShader.frag");
+    Shader modelShader("resources/shaders/modelShader.vert","resources/shaders/modelShader.frag");
+    Shader blendingShader("resources/shaders/blendingShader.vert","resources/shaders/blendingShader.frag");
     Shader skyboxShader("resources/shaders/skyboxShader.vert", "resources/shaders/skyboxShader.frag");
     Shader screenShader("resources/shaders/framebufferScreenShader.vert", "resources/shaders/framebufferScreenShader.frag");
 
@@ -130,7 +131,6 @@ int main() {
     glm::vec3 mazePos = glm::vec3(0.0f,-0.8f,-5.0f);
 
     //lights setup(those that are not changing)
-    //TODO set dirlight direction to be from the brightest part of the skybox
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(1.0f, 0.74f, 0.32f), glm::vec3(1.0f, 0.74f, 0.32f));
     PointLight bluePointLight;
@@ -143,31 +143,31 @@ int main() {
 
     float pyramid[] = {
             //coords         //TexCoords       //Normals
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,     0.0f, 2.0f, 2.0f,                //V0(red)
-            -1.0f,-1.0f,1.0f,    0.0f,0.0f,     0.0f, 2.0f, 2.0f,                   //V1(green)
-            1.0f,-1.0f,1.0f,     1.0f,0.0f,     0.0f, 2.0f, 2.0f,                 //V2(blue)
+             0.0f, 0.0f,0.0f,     0.0f, 2.0f, 2.0f,    0.5f,1.0f,                   //V0(red)
+            -1.0f,-1.0f,1.0f,    0.0f, 2.0f, 2.0f,    0.0f,0.0f,                      //V1(green)
+            1.0f,-1.0f,1.0f,    0.0f, 2.0f, 2.0f,   1.0f,0.0f,                    //V2(blue)
 
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,    2.0f, 2.0f, 0.0f,                  //V0(red)
-            1.0f,-1.0f,1.0f,     0.0f,0.0f,    2.0f, 2.0f, 0.0f,                  //V2(blue)
-            1.0f,-1.0f,-1.0f,    1.0f,0.0f,    2.0f, 2.0f, 0.0f,                   //V3(green)
+            0.0f, 0.0f,0.0f,    2.0f, 2.0f, 0.0f,    0.5f,1.0f,                   //V0(red)
+            1.0f,-1.0f,1.0f,    2.0f, 2.0f, 0.0f,    0.0f,0.0f,                   //V2(blue)
+            1.0f,-1.0f,-1.0f,    2.0f, 2.0f, 0.0f,   1.0f,0.0f,                    //V3(green)
 
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,    0.0f, 2.0f, -2.0f,                //V0(red)
-            1.0f,-1.0f,-1.0f,    0.0f,0.0f,    0.0f, 2.0f, -2.0f,                  //V3(green)
-            -1.0f,-1.0f,-1.0f,   1.0f,0.0f,    0.0f, 2.0f, -2.0f,                    //V4(blue)
+            0.0f, 0.0f,0.0f,    0.0f, 2.0f, -2.0f,    0.5f,1.0f,                 //V0(red)
+            1.0f,-1.0f,-1.0f,   0.0f, 2.0f, -2.0f,    0.0f,0.0f,                   //V3(green)
+            -1.0f,-1.0f,-1.0f,   0.0f, 2.0f, -2.0f,   1.0f,0.0f,                     //V4(blue)
 
-            0.0f, 0.0f,0.0f,     0.5f,1.0f,    -2.0f, 2.0f, 0.0f,                 //V0(red)
-            -1.0f,-1.0f,-1.0f,   0.0f,0.0f,    -2.0f, 2.0f, 0.0f,                    //V4(blue)
-            -1.0f,-1.0f,1.0f,    1.0f,0.0f,    -2.0f, 2.0f, 0.0f                    //V1
+            0.0f, 0.0f,0.0f,    -2.0f, 2.0f, 0.0f,   0.5f,1.0f,                   //V0(red)
+            -1.0f,-1.0f,-1.0f,  -2.0f, 2.0f, 0.0f,   0.0f,0.0f,                      //V4(blue)
+            -1.0f,-1.0f,1.0f,    -2.0f, 2.0f, 0.0f,   1.0f,0.0f                     //V1
     };
 
     float floor[]{
-            10.0f, -0.5f,  10.0f,  10.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-            -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f,
-            -10.0f, -0.5f,  10.0f,   0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+            10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f, 10.0f,  0.0f,
+            -10.0f, -0.5f, -10.0f, 0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
+            -10.0f, -0.5f,  10.0f, 0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
 
-            10.0f, -0.5f,  10.0f,  10.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-            10.0f, -0.5f, -10.0f,  10.0f, 10.0f,   0.0f, 1.0f, 0.0f,
-            -10.0f, -0.5f, -10.0f,   0.0f, 10.0f,  0.0f, 1.0f, 0.0f
+            10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f, 10.0f,  0.0f,
+            10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f, 10.0f, 10.0f,
+            -10.0f, -0.5f, -10.0f, 0.0f, 1.0f, 0.0f ,   0.0f, 10.0f
     };
 
     float cube[]{
@@ -318,10 +318,10 @@ int main() {
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)(3* sizeof(float)));
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(5* sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(6* sizeof(float)));
     glEnableVertexAttribArray(2);
 
     //floor setup
@@ -335,10 +335,10 @@ int main() {
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)(3* sizeof(float)));
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float),(void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(5* sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(6* sizeof(float)));
     glEnableVertexAttribArray(2);
 
     //screen quad setup
@@ -388,7 +388,6 @@ int main() {
     screenShader.use();
     screenShader.setInt("screenTexture",0);
 
-    //TODO: check unbinding
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
 
@@ -442,7 +441,7 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
         //pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime())) + res_stone_Pos;
-        bluePointLight.position = glm::vec3(sin(glfwGetTime()) * 0.5f, 0.5f, cos(glfwGetTime()) * 0.5f) + mazePos;
+        bluePointLight.position = glm::vec3(sin(glfwGetTime()) * 0.2f, 1.0f, cos(glfwGetTime()) * 0.2f) + mazePos;
 
         objShader.use();
         objShader.setLights(dirLight, pointLight, bluePointLight, spotLight);
@@ -461,9 +460,9 @@ int main() {
 
         objShader.setFloat("material.shininess", 16.0f);
 
-        objShader.setMat4("Model",pyramidModel);
-        objShader.setMat4("View",view);
-        objShader.setMat4("Projection",projection);
+        objShader.setMat4("model",pyramidModel);
+        objShader.setMat4("view",view);
+        objShader.setMat4("projection",projection);
 
         glBindVertexArray(pyramidVAO);
         glDrawArrays(GL_TRIANGLES,0,12);
@@ -471,7 +470,7 @@ int main() {
         glm::mat4 floorModel = glm::mat4 (1.0f);
         floorModel = glm::translate(floorModel, glm::vec3(0.0f,-0.1f,-3.0f));
         floorModel = glm::scale(floorModel, glm::vec3(0.7f));
-        objShader.setMat4("Model", floorModel);
+        objShader.setMat4("model", floorModel);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, floorTexDiffuse);
         glActiveTexture(GL_TEXTURE1);
@@ -529,7 +528,7 @@ int main() {
                 dementorModel = glm::scale(dementorModel, glm::vec3(0.2f));
                 modelShader.setMat4("model",dementorModel);
             } else{
-                dementorModel = glm::translate(dementorModel, mazePos + glm::vec3(0.0f,(float)i+2,0.0f) + levitatingFunc);
+                dementorModel = glm::translate(dementorModel, mazePos + glm::vec3(0.0f,(float)i+2,-0.5f) + levitatingFunc);
                 dementorModel = glm::translate(dementorModel,glm::vec3(sin(glfwGetTime())*i*tan(glfwGetTime()),0.0f,cos(glfwGetTime())*i));
                 dementorModel = glm::rotate(dementorModel,glm::radians(90.0f),glm::vec3(1.0f,0.0f,0.0f));
                 dementorModel = glm::scale(dementorModel, glm::vec3(0.2f));
