@@ -105,6 +105,7 @@ int main() {
     Shader blendingShader("resources/shaders/blendingShader.vert","resources/shaders/blendingShader.frag");
     Shader skyboxShader("resources/shaders/skyboxShader.vert", "resources/shaders/skyboxShader.frag");
     Shader screenShader("resources/shaders/framebufferScreenShader.vert", "resources/shaders/framebufferScreenShader.frag");
+    Shader shadowShader("resources/shaders/shadowShader.vert", "resources/shaders/shadowShader.frag","resources/shaders/shadowShader.geom");
 
     //loading models
     Model snitch(FileSystem::getPath("resources/objects/golden_snitch/model.obj"));
@@ -377,10 +378,12 @@ int main() {
     objShader.use();
     objShader.setInt("material.texture_diffuse1",0);
     objShader.setInt("material.texture_specular1", 1);
+    objShader.setInt("material.depthMap", 2);
 
     modelShader.use();
     modelShader.setInt("material.texture_diffuse1", 0);
     modelShader.setInt("material.texture_specular1", 1);
+    modelShader.setInt("material.depthMap", 2);
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -414,6 +417,30 @@ int main() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth cubemap texture
+    unsigned int depthCubemap;
+    glGenTextures(1, &depthCubemap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+    for (unsigned int i = 0; i < 6; ++i)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        cout << "!!!FRAMEBUFFER CREATING FAILED!!!" << endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -421,10 +448,93 @@ int main() {
 
         processInput(window);
 
-        //binding framebuffer before we start drawing everything
-        glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
-        glEnable(GL_DEPTH_TEST);
+        float near_plane = 1.0f;
+        float far_plane  = 25.0f;
+        glm::vec3 shadowLightPos = mazePos + glm::vec3 (0.0f,3.0f,0.0f);
+        glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
+        std::vector<glm::mat4> shadowTransforms;
+        shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        shadowShader.use();
+        for (unsigned int i = 0; i < 6; ++i)
+            shadowShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+        shadowShader.setFloat("far_plane", far_plane);
+        shadowShader.setVec3("lightPos", shadowLightPos);
+        //RENDER SCENE START
+        {
+            //draw pyramid
+            glm::mat4 pyramidModel = glm::mat4 (1.0f);
+            pyramidModel = glm::translate(pyramidModel, res_stone_Pos);
+            pyramidModel = glm::scale(pyramidModel, glm::vec3(0.5f));
+
+            shadowShader.use();
+            shadowShader.setMat4("model",pyramidModel);
+            glBindVertexArray(pyramidVAO);
+            glDrawArrays(GL_TRIANGLES,0,12);
+
+
+            shadowShader.use();
+            //draw snitch
+            glm::mat4 snitchModel = glm::mat4(1.0f);
+            snitchModel = glm::translate(snitchModel, glm::vec3(0.2f, 0.0f, -1.0f) + camera.Position);
+            if (movement) {
+                snitchModel = glm::translate(snitchModel, glm::vec3(cos(glfwGetTime()) / 3.0f,
+                                                                    sin(glfwGetTime()) * cos(glfwGetTime()) / 3.0f, 0.0f));
+            }
+            snitchModel = glm::scale(snitchModel,glm::vec3(0.1f));
+            shadowShader.setMat4("model", snitchModel);
+            snitch.Draw(shadowShader);
+
+
+            //draw dementors
+            glm::vec3 levitatingFunc = glm::vec3 (0.0f, sin(glfwGetTime()*4.0f)/10.0f,0.0f);
+            glm::mat4 dementorModel = glm::mat4(1.0f);
+            dementorModel = glm::translate(dementorModel, levitatingFunc + glm::vec3(-1.0f,0.0f,0.0f));
+            dementorModel = glm::rotate(dementorModel,glm::radians(20.0f),glm::vec3(0.0f,1.0f,0.0f));
+            dementorModel = glm::scale(dementorModel, glm::vec3(0.2f));
+            shadowShader.setMat4("model",dementorModel);
+            dementor.Draw(shadowShader);
+
+            //draw maze
+            glm::mat4 mazeModel = glm::mat4 (1.0f);
+            mazeModel = glm::translate(mazeModel,mazePos);
+            mazeModel = glm::scale(mazeModel,glm::vec3(1.5f));
+            shadowShader.setMat4("model",mazeModel);
+            maze.Draw(shadowShader);
+
+            //draw triwizard cup
+            glm::mat4 cupModel = glm::mat4(1.0f);
+            cupModel = glm::translate(cupModel, mazePos + glm::vec3(0.0f,0.75f,0.0f));
+            cupModel = glm::rotate(cupModel, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+            cupModel = glm::scale(cupModel, glm::vec3(0.01f));
+            shadowShader.setMat4("model", cupModel);
+            triwizardCup.Draw(shadowShader);
+
+
+            //draw res stone
+            glm::mat4 resStoneModel = glm::mat4(1.0f);
+            resStoneModel = glm::translate(resStoneModel,res_stone_Pos);
+            resStoneModel = glm::scale(resStoneModel,glm::vec3(0.05f));
+            shadowShader.setMat4("model",resStoneModel);
+            resStone.Draw(shadowShader);
+        }
+
+        //RENDER SCENE END
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        //binding framebuffer before we start drawing everything
+        //glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+        //glEnable(GL_DEPTH_TEST);
+
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClearColor(0.2f,0.2f,0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -433,6 +543,8 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, pyramidTexDiffuse);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, pyramidTexSpecular);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 
         glm::mat4 pyramidModel = glm::mat4 (1.0f);
         pyramidModel = glm::translate(pyramidModel, res_stone_Pos);
@@ -440,7 +552,6 @@ int main() {
         glm::mat4 view = glm::mat4 (camera.GetViewMatrix());
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-        //pointLight.position = glm::vec3(sin(glfwGetTime()), 0.0f, cos(glfwGetTime())) + res_stone_Pos;
         bluePointLight.position = glm::vec3(sin(glfwGetTime()) * 0.2f, 1.0f, cos(glfwGetTime()) * 0.2f) + mazePos;
 
         objShader.use();
@@ -459,6 +570,9 @@ int main() {
         objShader.setVec3("viewPosition", camera.Position);
 
         objShader.setFloat("material.shininess", 16.0f);
+
+        objShader.setFloat("far_plane", far_plane);
+        objShader.setVec3("shadowLightPos", shadowLightPos);
 
         objShader.setMat4("model",pyramidModel);
         objShader.setMat4("view",view);
@@ -480,6 +594,8 @@ int main() {
         glDrawArrays(GL_TRIANGLES,0,6);
 
         modelShader.use();
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
         modelShader.setLights(dirLight, pointLight, bluePointLight, spotLight);
 
         modelShader.setVec3("pointLights[0].position", pointLightPositions[0]);
@@ -495,6 +611,8 @@ int main() {
         modelShader.setVec3("viewPosition", camera.Position);
 
         modelShader.setFloat("material.shininess", 32.0f);
+        modelShader.setFloat("far_plane", far_plane);
+        modelShader.setVec3("shadowLightPos", shadowLightPos);
 
         modelShader.setMat4("view",view);
         modelShader.setMat4("projection",projection);
@@ -633,16 +751,16 @@ int main() {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
-        glBindFramebuffer(GL_FRAMEBUFFER,0);
-        glDisable(GL_DEPTH_TEST);
-        glClearColor(1.0f,0.0f,0.0f,1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        screenShader.use();
-        screenShader.setBool("blurr",blurr);
-        glBindVertexArray(screenVAO);
-        glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
-        glDrawArrays(GL_TRIANGLES,0,6);
+        //glBindFramebuffer(GL_FRAMEBUFFER,0);
+        //glDisable(GL_DEPTH_TEST);
+        //glClearColor(1.0f,0.0f,0.0f,1.0f);
+        //glClear(GL_COLOR_BUFFER_BIT);
+        //
+        //screenShader.use();
+        //screenShader.setBool("blurr",blurr);
+        //glBindVertexArray(screenVAO);
+        //glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
+        //glDrawArrays(GL_TRIANGLES,0,6);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
