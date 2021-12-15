@@ -100,7 +100,7 @@ int main() {
 
     //creating shaders
     Shader lightShader("resources/shaders/lightShader.vert", "resources/shaders/lightShader.frag");
-    Shader objShader("resources/shaders/modelShader.vert","resources/shaders/modelShader.frag");
+    Shader objShader("resources/shaders/shader.vert","resources/shaders/shader.frag");
     Shader modelShader("resources/shaders/modelShader.vert","resources/shaders/modelShader.frag");
     Shader blendingShader("resources/shaders/blendingShader.vert","resources/shaders/blendingShader.frag");
     Shader skyboxShader("resources/shaders/skyboxShader.vert", "resources/shaders/skyboxShader.frag");
@@ -450,7 +450,9 @@ int main() {
 
         float near_plane = 1.0f;
         float far_plane  = 25.0f;
-        glm::vec3 shadowLightPos = mazePos + glm::vec3 (0.0f,3.0f,0.0f);
+        //glm::vec3 shadowLightPos = mazePos + glm::vec3 (0.0f,3.0f,0.0f);
+        glm::vec3 shadowLightPos = glm::vec3(0.0f,0.5f,1.0f + sin(glfwGetTime()) * 2.0f);
+        //glm::vec3 shadowLightPos = glm::vec3 (sin(glfwGetTime()*2.0f),1.0f, cos(glfwGetTime())*2.0f) + res_stone_Pos;
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
         std::vector<glm::mat4> shadowTransforms;
         shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
@@ -480,51 +482,6 @@ int main() {
             glBindVertexArray(pyramidVAO);
             glDrawArrays(GL_TRIANGLES,0,12);
 
-
-            shadowShader.use();
-            //draw snitch
-            glm::mat4 snitchModel = glm::mat4(1.0f);
-            snitchModel = glm::translate(snitchModel, glm::vec3(0.2f, 0.0f, -1.0f) + camera.Position);
-            if (movement) {
-                snitchModel = glm::translate(snitchModel, glm::vec3(cos(glfwGetTime()) / 3.0f,
-                                                                    sin(glfwGetTime()) * cos(glfwGetTime()) / 3.0f, 0.0f));
-            }
-            snitchModel = glm::scale(snitchModel,glm::vec3(0.1f));
-            shadowShader.setMat4("model", snitchModel);
-            snitch.Draw(shadowShader);
-
-
-            //draw dementors
-            glm::vec3 levitatingFunc = glm::vec3 (0.0f, sin(glfwGetTime()*4.0f)/10.0f,0.0f);
-            glm::mat4 dementorModel = glm::mat4(1.0f);
-            dementorModel = glm::translate(dementorModel, levitatingFunc + glm::vec3(-1.0f,0.0f,0.0f));
-            dementorModel = glm::rotate(dementorModel,glm::radians(20.0f),glm::vec3(0.0f,1.0f,0.0f));
-            dementorModel = glm::scale(dementorModel, glm::vec3(0.2f));
-            shadowShader.setMat4("model",dementorModel);
-            dementor.Draw(shadowShader);
-
-            //draw maze
-            glm::mat4 mazeModel = glm::mat4 (1.0f);
-            mazeModel = glm::translate(mazeModel,mazePos);
-            mazeModel = glm::scale(mazeModel,glm::vec3(1.5f));
-            shadowShader.setMat4("model",mazeModel);
-            maze.Draw(shadowShader);
-
-            //draw triwizard cup
-            glm::mat4 cupModel = glm::mat4(1.0f);
-            cupModel = glm::translate(cupModel, mazePos + glm::vec3(0.0f,0.75f,0.0f));
-            cupModel = glm::rotate(cupModel, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-            cupModel = glm::scale(cupModel, glm::vec3(0.01f));
-            shadowShader.setMat4("model", cupModel);
-            triwizardCup.Draw(shadowShader);
-
-
-            //draw res stone
-            glm::mat4 resStoneModel = glm::mat4(1.0f);
-            resStoneModel = glm::translate(resStoneModel,res_stone_Pos);
-            resStoneModel = glm::scale(resStoneModel,glm::vec3(0.05f));
-            shadowShader.setMat4("model",resStoneModel);
-            resStone.Draw(shadowShader);
         }
 
         //RENDER SCENE END
@@ -697,12 +654,6 @@ int main() {
         blendingShader.setMat4("model",resStoneModel);
 
         blendingShader.setLights(dirLight, pointLight, bluePointLight, spotLight);
-
-        objShader.setVec3("pointLights[0].position", pointLightPositions[0]);
-        objShader.setVec3("pointLights[1].position", pointLightPositions[1]);
-        objShader.setVec3("pointLights[2].position", pointLightPositions[2]);
-        objShader.setVec3("pointLights[3].position", pointLightPositions[3]);
-        objShader.setVec3("pointLights[4].position", bluePointLight.position);
 
         blendingShader.setVec3("spotLight.direction", camera.Front);
         blendingShader.setVec3("spotLight.position", camera.Position);
