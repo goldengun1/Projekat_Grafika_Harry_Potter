@@ -451,8 +451,9 @@ int main() {
         float near_plane = 1.0f;
         float far_plane  = 25.0f;
         //glm::vec3 shadowLightPos = mazePos + glm::vec3 (0.0f,3.0f,0.0f);
-        glm::vec3 shadowLightPos = glm::vec3(0.0f,0.5f,1.0f + sin(glfwGetTime()) * 2.0f);
+        //glm::vec3 shadowLightPos = glm::vec3(0.0f,0.5f,1.0f + sin(glfwGetTime()) * 2.0f);
         //glm::vec3 shadowLightPos = glm::vec3 (sin(glfwGetTime()*2.0f),1.0f, cos(glfwGetTime())*2.0f) + res_stone_Pos;
+        glm::vec3 shadowLightPos = glm::vec3(-4.0f,0.5f,-1.0f);
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
         std::vector<glm::mat4> shadowTransforms;
         shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
@@ -485,11 +486,12 @@ int main() {
         }
 
         //RENDER SCENE END
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDeleteFramebuffers(1,&depthMapFBO);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         //binding framebuffer before we start drawing everything
-        //glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
-        //glEnable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+        glEnable(GL_DEPTH_TEST);
 
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClearColor(0.2f,0.2f,0.2f, 1.0f);
@@ -702,16 +704,16 @@ int main() {
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
-        //glBindFramebuffer(GL_FRAMEBUFFER,0);
-        //glDisable(GL_DEPTH_TEST);
-        //glClearColor(1.0f,0.0f,0.0f,1.0f);
-        //glClear(GL_COLOR_BUFFER_BIT);
-        //
-        //screenShader.use();
-        //screenShader.setBool("blurr",blurr);
-        //glBindVertexArray(screenVAO);
-        //glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
-        //glDrawArrays(GL_TRIANGLES,0,6);
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+        glDisable(GL_DEPTH_TEST);
+        glClearColor(1.0f,0.0f,0.0f,1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        screenShader.use();
+        screenShader.setBool("blurr",blurr);
+        glBindVertexArray(screenVAO);
+        glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
+        glDrawArrays(GL_TRIANGLES,0,6);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
