@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <common.h>
-#include <learnopengl/lights.h>
+#include "rg/lights.h"
 
 class Shader
 {

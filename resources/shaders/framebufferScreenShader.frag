@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
+uniform float exposure;
 
 //post processing values
 uniform bool blurr;
@@ -12,11 +13,14 @@ const float offset = 1.0 / 300.0;
 
 void main()
 {
+    const float gamma = 0.5;
 
     if(!blurr){
         // normal rendering
-        vec3 col = vec4(texture(screenTexture, TexCoords)).rgb;
-        FragColor = vec4(col, 1.0);
+        vec3 hdrColor = texture(screenTexture, TexCoords).rgb;
+        vec3 result = vec3(1.0f) - exp(-hdrColor * exposure);
+        result = pow(result, vec3(1.0/gamma));
+        FragColor = vec4(result, 1.0);
     }
     else if(blurr){
         vec2 offsets[9] = vec2[](
@@ -46,7 +50,10 @@ void main()
         for (int i = 0; i < 9; ++i) {
             col += sampleTex[i] * kernel[i];
         }
-        FragColor = vec4(col, 1.0);
+
+        vec3 result = vec3(1.0f) - exp(-col * exposure);
+        result = pow(result, vec3(1.0/gamma));
+        FragColor = vec4(result, 1.0);
     }
 
 }
