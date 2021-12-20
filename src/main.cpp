@@ -1,5 +1,3 @@
-//test commit!
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -17,9 +15,6 @@
 #include <learnopengl/model.h>
 #include "rg/lights.h"
 
-//#include <rg/Shader.h>
-//#include <rg/Camera.h>
-
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -28,7 +23,6 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 unsigned int loadTexture(const char *path, bool gammaCorrection);
-
 unsigned int loadCubemap(vector<string> vector1);
 
 // settings
@@ -50,11 +44,8 @@ bool spotLightOn = false;
 bool wand = false;
 bool movement = true;
 bool blurr = false;
-//TODO add more spells for framebuffer post processing
 
 int main() {
-    // glfw: initialize and configure
-    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -65,7 +56,6 @@ int main() {
 #endif
 
     // glfw window creation
-    // --------------------
     GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Harry_Potter_and_the_OpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -77,19 +67,17 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
-    // tell GLFW to capture our mouse
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    //stbi_set_flip_vertically_on_load(true);
-
+    //stbi_set_flip_vertically_on_load(true);   texture se ne lepe ispravno sa ukljucenim
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -140,7 +128,7 @@ int main() {
     DirLight dirLight;
     dirLight.setLightComponents(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.2f), glm::vec3(0.5f));
     SpotLight spotLight;
-    spotLight.setLightComponents(camera.Position, camera.Front, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+    spotLight.setLightComponents(camera.Position, camera.Front, glm::vec3(0.0f), glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(1.0f));
     spotLight.setCutOff(glm::cos(glm::radians(15.0f)), glm::cos(glm::radians(25.0f)));
 
     float pyramid[] = {
@@ -358,7 +346,6 @@ int main() {
     glEnableVertexAttribArray(1);
 
 
-
     unsigned int pyramidTexDiffuse = loadTexture("resources/textures/gold_diffuse.jpg", true);
     unsigned int pyramidTexSpecular = loadTexture("resources/textures/gold_specular.jpg", true);
     unsigned int floorTexDiffuse = loadTexture("resources/textures/earth.jpg", false);
@@ -399,6 +386,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
 
+    //setup framebuffers
     unsigned framebuffer;
     glGenFramebuffers(1,&framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
@@ -514,7 +502,6 @@ int main() {
             shadowShader.setMat4("model",pyramidModel);
             glBindVertexArray(pyramidVAO);
             glDrawArrays(GL_TRIANGLES,0,12);
-
         }
 
         //RENDER SCENE END
@@ -779,20 +766,32 @@ int main() {
         glfwPollEvents();
     }
 
+    //delete VAO and VBO
     glDeleteVertexArrays(1,&pyramidVAO);
     glDeleteVertexArrays(1,&floorVAO);
     glDeleteVertexArrays(1,&lightVAO);
     glDeleteVertexArrays(1,&screenVAO);
+    glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1,&pyramidVBO);
     glDeleteBuffers(1,&floorVBO);
     glDeleteBuffers(1,&lightVBO);
     glDeleteBuffers(1,&screenVBO);
+    glDeleteBuffers(1, &skyboxVBO);
+
+    //delete framebuffers
+    glDeleteFramebuffers(1, &framebuffer);
+    glDeleteFramebuffers(2, textureColorBuffers);
+    glDeleteFramebuffers(1, &renderbuffer);
+
+    //delete shaders
     objShader.deleteProgram();
     modelShader.deleteProgram();
     blendingShader.deleteProgram();
     lightShader.deleteProgram();
     skyboxShader.deleteProgram();
     screenShader.deleteProgram();
+    blurShader.deleteProgram();
+    shadowShader.deleteProgram();
     glfwTerminate();
     return 0;
 }

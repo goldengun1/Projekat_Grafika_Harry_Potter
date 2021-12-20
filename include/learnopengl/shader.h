@@ -171,6 +171,7 @@ public:
     }
 
     void setLights(DirLight dirLight, PointLight pointLight, PointLight bluePointLight, SpotLight spotLight){
+        //podesava na istu poziciju, svetla se pomeraju pa ce se pozicije prosledjivati u render petlji
         setVec3("dirLight.direction", dirLight.direction);
         setVec3("dirLight.ambient", dirLight.ambient);
         setVec3("dirLight.diffuse", dirLight.diffuse);
