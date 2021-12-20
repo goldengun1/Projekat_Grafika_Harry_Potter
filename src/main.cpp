@@ -136,7 +136,7 @@ int main() {
     PointLight pointLight;
     pointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(10.0f, 7.4f, 3.2f), glm::vec3(10.0f, 7.4f, 3.2f));
     PointLight bluePointLight;
-    bluePointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(0.0f, 0.8f, 1.0f), glm::vec3(0.0f, 0.8f, 1.0f));
+    bluePointLight.setLightComponents(glm::vec3(1.0f), glm::vec3(0.1f), glm::vec3(0.0f, 2.8f, 3.0f), glm::vec3(0.0f, 0.8f, 1.0f));
     DirLight dirLight;
     dirLight.setLightComponents(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f), glm::vec3(0.2f), glm::vec3(0.5f));
     SpotLight spotLight;
@@ -272,8 +272,8 @@ int main() {
     };
 
     glm::vec3 pointLightPositions[] = {
-            glm::vec3(5.0f, 0.0f, 2.0f),
-            glm::vec3(-5.0f, 0.0f, 2.0f),
+            glm::vec3(5.0f, 0.5f, 2.0f),
+            glm::vec3(-5.0f, 0.5f, 2.0f),
             glm::vec3(5.0f, 0.0f, -8.0f),
             glm::vec3(-5.0f, 0.0f, -8.0f)
     };
@@ -484,7 +484,8 @@ int main() {
         //glm::vec3 shadowLightPos = mazePos + glm::vec3 (0.0f,3.0f,0.0f);
         //glm::vec3 shadowLightPos = glm::vec3(0.0f,0.5f,1.0f + sin(glfwGetTime()) * 2.0f);
         //glm::vec3 shadowLightPos = glm::vec3 (sin(glfwGetTime()*2.0f),1.0f, cos(glfwGetTime())*2.0f) + res_stone_Pos;
-        glm::vec3 shadowLightPos = glm::vec3(-4.0f,0.5f,-1.0f);
+        //glm::vec3 shadowLightPos = glm::vec3(-4.0f,0.5f,-1.0f);
+        glm::vec3 shadowLightPos = glm::vec3(-5.0f, 0.5f, 2.0f);
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
         std::vector<glm::mat4> shadowTransforms;
         shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
@@ -766,7 +767,7 @@ int main() {
 
         screenShader.use();
         screenShader.setBool("blurr",blurr);
-        screenShader.setFloat("exposure", 0.7f);
+        screenShader.setFloat("exposure", 0.5f);
         glBindVertexArray(screenVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureColorBuffers[0]);
