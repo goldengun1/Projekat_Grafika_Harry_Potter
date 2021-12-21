@@ -26,8 +26,8 @@ unsigned int loadTexture(const char *path, bool gammaCorrection);
 unsigned int loadCubemap(vector<string> vector1);
 
 // settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 900;
 
 // camera
 Camera camera(glm::vec3(0.0f,0.0f,3.0f));
@@ -41,9 +41,8 @@ float lastFrame = 0.0f;
 
 bool firstMouse = true;
 bool spotLightOn = false;
-bool wand = false;
 bool movement = true;
-bool blurr = false;
+bool blur = false;
 
 int main() {
     glfwInit();
@@ -75,9 +74,6 @@ int main() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    //stbi_set_flip_vertically_on_load(true);   texture se ne lepe ispravno sa ukljucenim
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -469,11 +465,7 @@ int main() {
 
         float near_plane = 1.0f;
         float far_plane  = 25.0f;
-        //glm::vec3 shadowLightPos = mazePos + glm::vec3 (0.0f,3.0f,0.0f);
-        //glm::vec3 shadowLightPos = glm::vec3(0.0f,0.5f,1.0f + sin(glfwGetTime()) * 2.0f);
-        //glm::vec3 shadowLightPos = glm::vec3 (sin(glfwGetTime()*2.0f),1.0f, cos(glfwGetTime())*2.0f) + res_stone_Pos;
-        //glm::vec3 shadowLightPos = glm::vec3(-4.0f,0.5f,-1.0f);
-        glm::vec3 shadowLightPos = glm::vec3(-5.0f, 0.5f, 2.0f);
+        glm::vec3 shadowLightPos = pointLightPositions[1];
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
         std::vector<glm::mat4> shadowTransforms;
         shadowTransforms.push_back(shadowProj * glm::lookAt(shadowLightPos, shadowLightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
@@ -753,7 +745,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         screenShader.use();
-        screenShader.setBool("blurr",blurr);
+        screenShader.setBool("blur",blur);
         screenShader.setFloat("exposure", 0.5f);
         glBindVertexArray(screenVAO);
         glActiveTexture(GL_TEXTURE0);
@@ -781,7 +773,8 @@ int main() {
     //delete framebuffers
     glDeleteFramebuffers(1, &framebuffer);
     glDeleteFramebuffers(2, textureColorBuffers);
-    glDeleteFramebuffers(1, &renderbuffer);
+    glDeleteFramebuffers(2,pingpongFBO);
+    glDeleteRenderbuffers(1, &renderbuffer);
 
     //delete shaders
     objShader.deleteProgram();
@@ -813,11 +806,11 @@ void processInput(GLFWwindow *window) {
 
     if(glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
         camera.MovementSpeed = camera.DefaultSpeed * 5.0f;
-        blurr = true;
+        blur = true;
     }
     if(glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
         camera.MovementSpeed = camera.DefaultSpeed;
-        blurr = false;
+        blur = false;
     }
 
 }

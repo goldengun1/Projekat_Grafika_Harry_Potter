@@ -8,7 +8,7 @@ uniform sampler2D bloomBlur;
 uniform float exposure;
 
 //post processing values
-uniform bool blurr;
+uniform bool blur;
 
 const float offset = 1.0 / 300.0;
 
@@ -16,7 +16,7 @@ void main()
 {
     const float gamma = 0.7f;
 
-    if(!blurr){
+    if(!blur){
         // normal rendering
         vec3 hdrColor = texture(screenTexture, TexCoords).rgb;
         vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
@@ -25,7 +25,7 @@ void main()
         result = pow(result, vec3(1.0/gamma));
         FragColor = vec4(result, 1.0);
     }
-    else if(blurr){
+    else if(blur){
         vec2 offsets[9] = vec2[](
         vec2(-offset, offset), // top/left
         vec2(0.0f, offset), // top-center
