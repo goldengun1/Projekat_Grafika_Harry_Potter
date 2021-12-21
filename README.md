@@ -8,7 +8,7 @@ University project for Computer Graphics using OpenGL, GLFW, GLM and Glad.
 
 **MOUSE SCROLL** - zoom in/zoom out
 
-**LSHIFT** - increase speed
+**LSHIFT** - increase speed / blur scene
 
 **C** - creative mode
 
@@ -39,3 +39,18 @@ Maze model:
 "Ancient Maze - #3December2020 Day1" (https://skfb.ly/6WUND) by LordDiego is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
 Resurrection stone model and wand model were made in Blender.
+
+#Implementations
+
+##Group A:
+
+Framebuffers (blur effect) - Mihailo Simic
+
+Cubemaps (skybox) - Stefanija Markovic
+
+
+##Group B
+
+HDR, Bloom - Stefanija Markovic
+
+Point Shadows (soft) - Mihailo Simic
