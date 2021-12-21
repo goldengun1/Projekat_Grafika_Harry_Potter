@@ -54,3 +54,14 @@ Cubemaps (skybox) - Stefanija Markovic
 HDR, Bloom - Stefanija Markovic
 
 Point Shadows (soft) - Mihailo Simic
+
+# Preview
+
+## Pictures:
+![4](https://user-images.githubusercontent.com/56194090/146920061-23480267-0ed9-4859-b114-379a083f009d.png)
+
+![1](https://user-images.githubusercontent.com/56194090/146920091-0161decb-9e96-451d-a674-be5096233497.png)
+
+![2](https://user-images.githubusercontent.com/56194090/146920104-601acb83-7810-4f27-88c6-d08b70d93448.png)
+
+![3](https://user-images.githubusercontent.com/56194090/146920118-aaebe8ac-b200-4aac-9b50-c59de63eff0b.png)
