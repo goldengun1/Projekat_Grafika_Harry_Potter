@@ -40,16 +40,16 @@ Maze model:
 
 Resurrection stone model and wand model were made in Blender.
 
-#Implementations
+# Implementations
 
-##Group A:
+## Group A:
 
 Framebuffers (blur effect) - Mihailo Simic
 
 Cubemaps (skybox) - Stefanija Markovic
 
 
-##Group B
+## Group B
 
 HDR, Bloom - Stefanija Markovic
 
