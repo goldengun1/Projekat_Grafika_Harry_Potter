@@ -49,13 +49,15 @@ Framebuffers (blur effect) - Mihailo Simic
 Cubemaps (skybox) - Stefanija Markovic
 
 
-## Group B
+## Group B:
 
 HDR, Bloom - Stefanija Markovic
 
 Point Shadows (soft) - Mihailo Simic
 
 # Preview
+
+## Demo video: https://www.youtube.com/watch?v=5ciGJRAe_xQ
 
 ## Pictures:
 ![4](https://user-images.githubusercontent.com/56194090/146920061-23480267-0ed9-4859-b114-379a083f009d.png)
